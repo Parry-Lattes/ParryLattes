@@ -1,0 +1,36 @@
+# Binários
+bin/
+dist/
+
+# Dependências vendor
+vendor/
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache do Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Module downloads
+go/pkg/mod/
+
+# Diretório de build
+/build/
+
+# Arquivos de ambiente
+.env
+.env.local
+EOF
