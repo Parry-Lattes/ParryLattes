@@ -27,7 +27,9 @@ func main() {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET("/getpessoa", pessoaController.GetPessoas)
-
+	e.GET("/pessoa", pessoaController.GetPessoas)
+	e.GET("/pessoa/:idPessoa", pessoaController.GetPessoaById)
+	e.POST("/createpessoa", pessoaController.CreatePessoa)
+	
 	e.Logger.Fatal(e.Start(":1323"))
 }

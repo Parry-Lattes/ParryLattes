@@ -18,3 +18,25 @@ func NewPessoaUseCase(repo repository.PessoaRepository) PessoaUsecase {
 func (pu *PessoaUsecase) GetPessoas() ([]model.Pessoa, error) {
 	return pu.repository.GetPessoas()
 }
+
+func (pu *PessoaUsecase) CreatePessoa(pessoa model.Pessoa) (model.Pessoa, error) {
+	IdPessoa, err := pu.repository.CreatePessoa(pessoa)
+
+	if err != nil {
+		return model.Pessoa{}, err
+	}
+
+	pessoa.IdPessoa = int64(IdPessoa)
+
+	return pessoa, nil
+}
+
+func (pu *PessoaUsecase) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
+	pessoa, err := pu.repository.GetPessoaById(idPessoa)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pessoa, nil
+}

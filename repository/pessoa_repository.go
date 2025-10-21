@@ -48,3 +48,65 @@ func (pr *PessoaRepository) GetPessoas() ([]model.Pessoa, error) {
 
 	return pessoaList, nil
 }
+
+func (pr *PessoaRepository) CreatePessoa(pessoa model.Pessoa) (int, error) {
+	query, err := pr.connection.Prepare(`
+		INSERT INTO Pessoa (Nome, Sexo, Abreviatura, Nacionalidade) 
+		VALUES (?, ?, ?, ?)`)
+
+	if err != nil {
+		fmt.Println("Erro ao preparar query:", err)
+		return 0, err
+	}
+	defer query.Close()
+
+	result, err := query.Exec(
+		pessoa.Nome,
+		pessoa.Sexo,
+		pessoa.Abreviatura,
+		pessoa.Nacionalidade,
+	)
+
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Erro ao obter último ID:", err)
+		return 0, err
+	}
+
+	return int(id), nil
+}
+
+func (pr *PessoaRepository) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
+	query, err := pr.connection.Prepare("SELECT * FROM Pessoa WHERE idPessoa = ?")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var pessoa model.Pessoa
+
+	err = query.QueryRow(idPessoa).Scan(
+		&pessoa.IdPessoa,
+		&pessoa.Nome,
+		&pessoa.Sexo,
+		&pessoa.Abreviatura,
+		&pessoa.Nacionalidade)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+
+		fmt.Println(err)
+		return nil, err
+	}
+
+	query.Close()
+
+	return &pessoa, nil
+}

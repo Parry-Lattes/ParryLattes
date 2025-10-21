@@ -1,0 +1,17 @@
+/pessoas 			- Lista todas as pessooas
+/pessoas/:id 			- Coleta informações de uma pessoa
+/pessoas/:id/curriculo		- Coleta o curriculo da pessoa
+/curriculos			- Lista todos os curriculos
+/curriculos/:id_lattes		- Coleta o curriculo de uma pessoa
+/profissionais			- Lista todos os profissionais
+/profissionais/:id		- Coleta um profissional
+/academicos/			- Lista os acadêmicos do curso
+/academicos/:id			- Coleta um acadêmico 
+/discentes			- Lista todos os discentes
+/discentes/:id			- Coleta um discente
+/docentes			- Lista um discente 
+/docente/:id			- Coleta um discente
+/coordenadores			- Lista todos os coordenadores
+/coordenadores/:id		- Coleta um coordenador específico
+/grupos_de_pesquisa/		- Lista todos os grupos de pesquisas
+/grupos_de_pesquisa/:id		- Coleta um grupo de pesquisa
