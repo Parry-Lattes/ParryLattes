@@ -20,16 +20,20 @@ func main() {
 
 	dbConnection := db.GetDBHandle()
 	PessoaRepository := repository.NewPessoaRepository(dbConnection)
+	CurriculoRepository := repository.NewCurriculoRepository(dbConnection)
+	curriculoUsecase := usecase.NewCurriculoUseCase(CurriculoRepository)
 	pessoaUseCase := usecase.NewPessoaUseCase(PessoaRepository)
-	pessoaController := controller.NewPessoaController(pessoaUseCase)
+	controller := controller.NewController(pessoaUseCase, curriculoUsecase)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET("/pessoa", pessoaController.GetPessoas)
-	e.GET("/pessoa/:idPessoa", pessoaController.GetPessoaById)
-	e.POST("/createpessoa", pessoaController.CreatePessoa)
-	
+	e.GET("/curriculo", controller.GetCurriculos)
+	e.GET("/pessoa", controller.GetPessoas)
+	e.GET("/pessoa/:idPessoa", controller.GetPessoaById)
+	e.GET("/curriculo/:idCurriculo", controller.GetCurriculoById)
+	e.POST("/createpessoa", controller.CreatePessoa)
+
 	e.Logger.Fatal(e.Start(":1323"))
 }

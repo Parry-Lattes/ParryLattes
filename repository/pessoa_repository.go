@@ -101,7 +101,6 @@ func (pr *PessoaRepository) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
-
 		fmt.Println(err)
 		return nil, err
 	}
