@@ -29,11 +29,14 @@ func main() {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET("/curriculo", controller.GetCurriculos)
 	e.GET("/pessoa", controller.GetPessoas)
 	e.GET("/pessoa/:idPessoa", controller.GetPessoaById)
-	e.GET("/curriculo/:idCurriculo", controller.GetCurriculoById)
-	e.POST("/createpessoa", controller.CreatePessoa)
+	e.POST("/pessoa/create", controller.CreatePessoa)
+	e.POST("/pessoa/update", controller.UpdatePessoa)
 
+	e.GET("/curriculo/:idCurriculo", controller.GetCurriculoById)
+	e.GET("/curriculo", controller.GetCurriculos)
+	e.POST("/curriculo/create", controller.CreateCurriculo)
+	e.POST("/curriculo/update", controller.UpdateCurriculo)
 	e.Logger.Fatal(e.Start(":1323"))
 }

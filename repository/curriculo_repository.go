@@ -7,21 +7,22 @@ import (
 )
 
 type CurriculoRepository struct {
-	connection *sql.DB
+	Repository
 }
 
 func NewCurriculoRepository(connection *sql.DB) CurriculoRepository {
 	return CurriculoRepository{
-		connection: connection,
+		Repository: Repository{
+			Connection: connection},
 	}
 }
 
-func (cr *CurriculoRepository) GetCurriculos() ([]model.Curriculo, error) {
+func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
 	querry := "SELECT idLattes,UltimaAtualizacao FROM Currculo"
-	rows, err := cr.connection.Query(querry)
+	rows, err := cr.Connection.Query(querry)
 
 	if err != nil {
-		return []model.Curriculo{}, err
+		return &[]model.Curriculo{}, err
 	}
 
 	var curriculoList []model.Curriculo
@@ -34,7 +35,7 @@ func (cr *CurriculoRepository) GetCurriculos() ([]model.Curriculo, error) {
 		)
 
 		if err != nil {
-			return []model.Curriculo{}, err
+			return &[]model.Curriculo{}, err
 		}
 
 		curriculoList = append(curriculoList, curriculoObj)
@@ -43,11 +44,11 @@ func (cr *CurriculoRepository) GetCurriculos() ([]model.Curriculo, error) {
 
 	rows.Close()
 
-	return curriculoList, nil
+	return &curriculoList, nil
 }
 
 func (cr *CurriculoRepository) GetCurriculoById(idCurrculo int) (*model.Curriculo, error) {
-	query, err := cr.connection.Prepare("SELECT c.* " +
+	query, err := cr.Connection.Prepare("SELECT c.idLattes, c.UltimaAtualizacao " +
 		"FROM Currculo c " +
 		"WHERE c.idCurrculo = ?")
 
@@ -73,5 +74,62 @@ func (cr *CurriculoRepository) GetCurriculoById(idCurrculo int) (*model.Curricul
 	query.Close()
 
 	return &curriculo, nil
+
+}
+
+func (cr *CurriculoRepository) CreateCurriculo(curriculo *model.Curriculo, idPessoa int) (int, error) {
+	query, err := cr.Connection.Prepare(`INSERT INTO Currculo (idLattes,UltimaAtualizacao,idPessoa)
+		VALUES(?,?,²?)`)
+
+	if err != nil {
+		fmt.Println("Erro ao Preparar query:", err)
+		return 0, err
+	}
+
+	defer query.Close()
+
+	result, err := query.Exec(
+		curriculo.IdLattes,
+		curriculo.UltimaAtualizacao,
+		idPessoa,
+	)
+
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Erro ao obter último ID:", err)
+		return 0, err
+	}
+
+	return int(id), nil
+}
+
+func (cr *CurriculoRepository) UpdateCurriculo(curriculo *model.Curriculo) error {
+	query, err := cr.Connection.Prepare("UPDATE Currculo " +
+		"SET UltimaAtualizacao = ? " +
+		"WHERE idLattes = ?")
+
+	if err != nil {
+		fmt.Println("Erro ao preparar query:", err)
+		return err
+	}
+
+	result, err := query.Exec(
+		curriculo.UltimaAtualizacao,
+		curriculo.IdLattes,
+	)
+
+	fmt.Println(result)
+
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return err
+	}
+
+	return nil
 
 }

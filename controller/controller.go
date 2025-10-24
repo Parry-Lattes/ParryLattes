@@ -32,11 +32,11 @@ func (p *Controller) GetCurriculos(c echo.Context) error {
 	return c.JSON(http.StatusOK, curriculos)
 }
 
-func (p* Controller)GetCurriculoById(c echo.Context) error {
-	
+func (p *Controller) GetCurriculoById(c echo.Context) error {
+
 	id := c.Param("idCurriculo")
 
-	if id == ""{
+	if id == "" {
 		response := model.Response{
 			Message: "Null ID",
 		}
@@ -81,6 +81,28 @@ func (p *Controller) GetPessoas(c echo.Context) error {
 	return c.JSON(http.StatusOK, pessoas)
 }
 
+func (p *Controller) CreateCurriculo(c echo.Context) error {
+
+	var curriculo model.Curriculo
+	err := c.Bind(&curriculo)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	var id int
+	insertedCurriculo, err := p.CurriculoUsecase.CreateCurriculo(&curriculo, id)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusCreated, insertedCurriculo)
+
+}
+
 func (p *Controller) CreatePessoa(c echo.Context) error {
 
 	var pessoa model.Pessoa
@@ -91,7 +113,7 @@ func (p *Controller) CreatePessoa(c echo.Context) error {
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	insertedPessoa, err := p.PessoaUsecase.CreatePessoa(pessoa)
+	insertedPessoa, err := p.PessoaUsecase.CreatePessoa(&pessoa)
 
 	if err != nil {
 		fmt.Println(err)
@@ -139,4 +161,44 @@ func (p *Controller) GetPessoaById(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, pessoa)
+}
+
+func (p *Controller) UpdatePessoa(c echo.Context) error {
+
+	var pessoa model.Pessoa
+	err := c.Bind(&pessoa)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	err = p.PessoaUsecase.UpdatePessoa(&pessoa)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+}
+
+func (p* Controller) UpdateCurriculo(c echo.Context)error{
+	var curriculo model.Curriculo
+	err := c.Bind(&curriculo)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	err = p.CurriculoUsecase.UpdateCurriculo(&curriculo)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, nil)
+
 }

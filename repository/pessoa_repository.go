@@ -7,22 +7,23 @@ import (
 )
 
 type PessoaRepository struct {
-	connection *sql.DB
+	Repository
 }
 
 func NewPessoaRepository(connection *sql.DB) PessoaRepository {
 	return PessoaRepository{
-		connection: connection,
+		Repository: Repository{
+			Connection: connection},
 	}
 }
 
-func (pr *PessoaRepository) GetPessoas() ([]model.Pessoa, error) {
+func (pr *PessoaRepository) GetPessoas() (*[]model.Pessoa, error) {
 
 	querry := "SELECT * FROM Pessoa"
-	rows, err := pr.connection.Query(querry)
+	rows, err := pr.Connection.Query(querry)
 	if err != nil {
 		fmt.Println(err)
-		return []model.Pessoa{}, err
+		return &[]model.Pessoa{}, err
 	}
 
 	var pessoaList []model.Pessoa
@@ -38,7 +39,7 @@ func (pr *PessoaRepository) GetPessoas() ([]model.Pessoa, error) {
 		)
 		if err != nil {
 			fmt.Println(err)
-			return []model.Pessoa{}, err
+			return &[]model.Pessoa{}, err
 		}
 
 		pessoaList = append(pessoaList, pessoaObj)
@@ -46,11 +47,11 @@ func (pr *PessoaRepository) GetPessoas() ([]model.Pessoa, error) {
 
 	rows.Close()
 
-	return pessoaList, nil
+	return &pessoaList, nil
 }
 
-func (pr *PessoaRepository) CreatePessoa(pessoa model.Pessoa) (int, error) {
-	query, err := pr.connection.Prepare(`
+func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (int, error) {
+	query, err := pr.Connection.Prepare(`
 		INSERT INTO Pessoa (Nome, Sexo, Abreviatura, Nacionalidade) 
 		VALUES (?, ?, ?, ?)`)
 
@@ -82,7 +83,7 @@ func (pr *PessoaRepository) CreatePessoa(pessoa model.Pessoa) (int, error) {
 }
 
 func (pr *PessoaRepository) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
-	query, err := pr.connection.Prepare("SELECT * FROM Pessoa WHERE idPessoa = ?")
+	query, err := pr.Connection.Prepare("SELECT * FROM Pessoa WHERE idPessoa = ?")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -108,4 +109,36 @@ func (pr *PessoaRepository) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
 	query.Close()
 
 	return &pessoa, nil
+}
+
+func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
+	query, err := pr.Connection.Prepare("UPDATE Pessoa " +
+		"SET Nome = ?, " +
+		"Sexo = ?, " +
+		"Abreviatura = ?, " +
+		"Nacionalidade = ? " +
+		"WHERE idPessoa = ?")
+
+	if err != nil {
+		fmt.Println("Erro ao preparar query:", err)
+		return err
+	}
+
+	result, err := query.Exec(
+		pessoa.Nome,
+		pessoa.Sexo,
+		pessoa.Abreviatura,
+		pessoa.Nacionalidade,
+		pessoa.IdPessoa,
+	)
+
+	fmt.Println(result)
+
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return err
+	}
+
+	return nil
+
 }

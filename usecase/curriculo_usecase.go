@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"parry_end/model"
 	"parry_end/repository"
 )
@@ -15,7 +16,7 @@ func NewCurriculoUseCase(repo repository.CurriculoRepository) CurriculoUsecase {
 	}
 }
 
-func (cu *CurriculoUsecase) GetCurriculos() ([]model.Curriculo, error) {
+func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
 	return cu.repository.GetCurriculos()
 }
 
@@ -27,4 +28,26 @@ func (cu *CurriculoUsecase) GetCurriculoById(idCurriculo int) (*model.Curriculo,
 	}
 
 	return curriculo, nil
+}
+
+func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, idPessoa int) (*model.Curriculo, error) {
+	IdCurriculo, err := cu.repository.CreateCurriculo(curriculo, idPessoa)
+
+	if err != nil {
+		return &model.Curriculo{}, err
+	}
+
+	fmt.Println(IdCurriculo)
+
+	return curriculo, nil
+}
+
+func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
+	err := cu.repository.UpdateCurriculo(curriculo)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
