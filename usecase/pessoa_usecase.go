@@ -43,7 +43,7 @@ func (pu *PessoaUsecase) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
 
 func (pu *PessoaUsecase) UpdatePessoa(pessoa *model.Pessoa) error {
 	err := pu.repository.UpdatePessoa(pessoa)
-	
+
 	if err != nil {
 		return err
 	}

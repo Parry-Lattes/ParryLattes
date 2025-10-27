@@ -13,12 +13,14 @@ import (
 type Controller struct {
 	PessoaUsecase    usecase.PessoaUsecase
 	CurriculoUsecase usecase.CurriculoUsecase
+	ProducaoUsecase  usecase.ProducaoUsecase
 }
 
-func NewController(usecase_pessoa usecase.PessoaUsecase, usecase_curriculo usecase.CurriculoUsecase) Controller {
+func NewController(usecase_pessoa usecase.PessoaUsecase, usecase_curriculo usecase.CurriculoUsecase, usecase_producao usecase.ProducaoUsecase) Controller {
 	return Controller{
 		PessoaUsecase:    usecase_pessoa,
 		CurriculoUsecase: usecase_curriculo,
+		ProducaoUsecase:  usecase_producao,
 	}
 }
 
@@ -183,7 +185,7 @@ func (p *Controller) UpdatePessoa(c echo.Context) error {
 	return c.JSON(http.StatusOK, nil)
 }
 
-func (p* Controller) UpdateCurriculo(c echo.Context)error{
+func (p *Controller) UpdateCurriculo(c echo.Context) error {
 	var curriculo model.Curriculo
 	err := c.Bind(&curriculo)
 
@@ -201,4 +203,15 @@ func (p* Controller) UpdateCurriculo(c echo.Context)error{
 
 	return c.JSON(http.StatusOK, nil)
 
+}
+
+func (p *Controller) GetProducoes(c echo.Context) error {
+
+	producao, err := p.ProducaoUsecase.GetProducoes()
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, producao)
 }
