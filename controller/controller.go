@@ -115,40 +115,40 @@ func (p *Controller) CreatePessoa(c echo.Context) error {
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	insertedPessoa, err := p.PessoaUsecase.CreatePessoa(&pessoa)
+	err = p.PessoaUsecase.CreatePessoa(&pessoa)
 
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, insertedPessoa)
+	return c.NoContent(http.StatusCreated)
 
 }
 
-func (p *Controller) GetPessoaById(c echo.Context) error {
+func (p *Controller) GetPessoaByCPF(c echo.Context) error {
 
-	id := c.Param("idPessoa")
+	CPF := c.Param("CPF")
 
-	if id == "" {
+	if CPF == "" {
 
 		response := model.Response{
-			Message: "Null ID",
+			Message: "Null CPF",
 		}
 		return c.JSON(http.StatusBadRequest, response)
 
 	}
 
-	idPessoa, err := strconv.Atoi(id)
+	CPFPessoa, err := strconv.Atoi(CPF)
 
 	if err != nil {
 		response := model.Response{
-			Message: "ID Must be a number",
+			Message: "CPF Must be a number",
 		}
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	pessoa, err := p.PessoaUsecase.GetPessoaById(idPessoa)
+	pessoa, err := p.PessoaUsecase.GetPessoaByCPF(CPFPessoa)
 
 	if err != nil {
 		fmt.Println(err)
@@ -212,5 +212,44 @@ func (p *Controller) GetProducoes(c echo.Context) error {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, err)
 	}
+	return c.JSON(http.StatusOK, producao)
+}
+
+func (p *Controller) GetProducaoById(c echo.Context) error {
+
+	id := c.Param("idProducao")
+
+	if id == "" {
+
+		response := model.Response{
+			Message: "Null ID",
+		}
+		return c.JSON(http.StatusBadRequest, response)
+
+	}
+
+	idProducao, err := strconv.Atoi(id)
+
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return c.JSON(http.StatusBadRequest, response)
+	}
+
+	producao, err := p.ProducaoUsecase.GetProducaoById(idProducao)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	if producao == nil {
+		response := model.Response{
+			Message: "Pessoa not found",
+		}
+		return c.JSON(http.StatusNotFound, response)
+	}
+
 	return c.JSON(http.StatusOK, producao)
 }

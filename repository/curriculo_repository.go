@@ -47,10 +47,10 @@ func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
 	return &curriculoList, nil
 }
 
-func (cr *CurriculoRepository) GetCurriculoById(idCurrculo int) (*model.Curriculo, error) {
+func (cr *CurriculoRepository) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
 	query, err := cr.Connection.Prepare("SELECT c.idLattes, c.UltimaAtualizacao " +
 		"FROM Currculo c " +
-		"WHERE c.idCurrculo = ?")
+		"WHERE c.idLattes = ?")
 
 	if err != nil {
 		fmt.Println(err)
@@ -58,7 +58,7 @@ func (cr *CurriculoRepository) GetCurriculoById(idCurrculo int) (*model.Curricul
 	}
 
 	var curriculo model.Curriculo
-	err = query.QueryRow(idCurrculo).Scan(
+	err = query.QueryRow(idLattes).Scan(
 		&curriculo.IdLattes,
 		&curriculo.UltimaAtualizacao,
 	)

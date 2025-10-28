@@ -19,7 +19,10 @@ func NewProducaoRepository(connection *sql.DB) ProducaoRepository {
 }
 func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 
-	query := "SELECT p.Autor,p.Titulo,p.Descricao,p.Link,p.DataDePublicacao,tp.Tipo FROM Producao p INNER JOIN TipoDeProducao tp ON p.idTipo = tp.idTipoDeProducao"
+	query := "SELECT p.Autor,p.Titulo,p.Descricao,p.Link,p.DataDePublicacao,tp.Tipo " +
+		"FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao"
 
 	rows, err := pr.Connection.Query(query)
 
@@ -51,3 +54,54 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 	rows.Close()
 	return &producaoList, nil
 }
+
+func (pr *ProducaoRepository) GetProducaoById(idProducao int) (*model.Producao, error) {
+	query, err := pr.Connection.Prepare("SELECT p.Autor,p.Titulo,p.Descricao,p.Link,p.DataDePublicacao,tp.Tipo " +
+		"FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao " +
+		"WHERE idProducao = ?")
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var producao model.Producao
+
+	err = query.QueryRow(idProducao).Scan(
+		&producao.Titulo,
+		&producao.Tipo,
+		&producao.Descricao,
+		&producao.DataDePublicacao,
+		&producao.Link,
+		&producao.Autor,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		fmt.Println(err)
+		return nil, err
+	}
+
+	query.Close()
+
+	return &producao, nil
+}
+
+// func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, idCurriculo int) error {
+// 	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, Tipo, Descricao, DataDePublicacao, Link, Autor) " +
+// 		"VALUES (?,?,?,?,?,?)")
+
+// 	if err != nil {
+// 		fmt.Println("Erro ao Preparar query:", err)
+// 		return err
+// 	}
+
+// 	defer query.Close()
+
+// 	result, err := query.Exec(
+// 		producao.Titulo,
+// 	)
+// }

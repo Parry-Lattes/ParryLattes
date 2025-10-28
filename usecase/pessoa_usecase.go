@@ -19,20 +19,18 @@ func (pu *PessoaUsecase) GetPessoas() (*[]model.Pessoa, error) {
 	return pu.repository.GetPessoas()
 }
 
-func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, error) {
-	IdPessoa, err := pu.repository.CreatePessoa(pessoa)
+func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
+	err := pu.repository.CreatePessoa(pessoa)
 
 	if err != nil {
-		return &model.Pessoa{}, err
+		return err
 	}
 
-	pessoa.IdPessoa = int64(IdPessoa)
-
-	return pessoa, nil
+	return nil
 }
 
-func (pu *PessoaUsecase) GetPessoaById(idPessoa int) (*model.Pessoa, error) {
-	pessoa, err := pu.repository.GetPessoaById(idPessoa)
+func (pu *PessoaUsecase) GetPessoaByCPF(CPF int) (*model.Pessoa, error) {
+	pessoa, err := pu.repository.GetPessoaByCPF(CPF)
 
 	if err != nil {
 		return nil, err
