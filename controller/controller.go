@@ -212,6 +212,5 @@ func (p *Controller) GetProducoes(c echo.Context) error {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, err)
 	}
-
 	return c.JSON(http.StatusOK, producao)
 }

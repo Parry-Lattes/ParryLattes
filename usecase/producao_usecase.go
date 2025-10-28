@@ -16,5 +16,5 @@ func NewProducaoUseCase(repo repository.ProducaoRepository) ProducaoUsecase {
 }
 
 func (pu *ProducaoUsecase) GetProducoes() (*[]model.Producao, error) {
-	return pu.GetProducoes()
+	return pu.Repository.GetProducoes()
 }

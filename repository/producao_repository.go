@@ -19,10 +19,7 @@ func NewProducaoRepository(connection *sql.DB) ProducaoRepository {
 }
 func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 
-	query := "SELECT p.Autor,p.Titulo,p.Descricao,p.Link,p.DataDePublicacao " +
-		"FROM Producao p " // +
-		//" INNER JOIN TipoDeProducao tp " +
-		//"ON p.idtipo = p.idTipo = tp.idTipoDeProducao"
+	query := "SELECT p.Autor,p.Titulo,p.Descricao,p.Link,p.DataDePublicacao,tp.Tipo FROM Producao p INNER JOIN TipoDeProducao tp ON p.idTipo = tp.idTipoDeProducao"
 
 	rows, err := pr.Connection.Query(query)
 
@@ -41,6 +38,7 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 			&producaoObj.Descricao,
 			&producaoObj.Link,
 			&producaoObj.DataDePublicacao,
+			&producaoObj.Tipo,
 		)
 
 		if err != nil {
@@ -49,7 +47,7 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 
 		producaoList = append(producaoList, producaoObj)
 	}
-	
+
 	rows.Close()
 	return &producaoList, nil
 }

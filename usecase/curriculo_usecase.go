@@ -17,11 +17,11 @@ func NewCurriculoUseCase(repo repository.CurriculoRepository) CurriculoUsecase {
 }
 
 func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
-	return cu.GetCurriculos()
+	return cu.Repository.GetCurriculos()
 }
 
 func (cu *CurriculoUsecase) GetCurriculoById(idCurriculo int) (*model.Curriculo, error) {
-	curriculo, err := cu.GetCurriculoById(idCurriculo)
+	curriculo, err := cu.Repository.GetCurriculoById(idCurriculo)
 
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (cu *CurriculoUsecase) GetCurriculoById(idCurriculo int) (*model.Curriculo,
 }
 
 func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, idPessoa int) (*model.Curriculo, error) {
-	IdCurriculo, err := cu.CreateCurriculo(curriculo, idPessoa)
+	IdCurriculo, err := cu.Repository.CreateCurriculo(curriculo, idPessoa)
 
 	if err != nil {
 		return &model.Curriculo{}, err
@@ -43,7 +43,7 @@ func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, idPessoa
 }
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
-	err := cu.UpdateCurriculo(curriculo)
+	err := cu.Repository.UpdateCurriculo(curriculo)
 
 	if err != nil {
 		return err
