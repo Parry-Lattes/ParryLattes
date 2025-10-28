@@ -18,7 +18,7 @@ func NewCurriculoRepository(connection *sql.DB) CurriculoRepository {
 }
 
 func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
-	querry := "SELECT idLattes,UltimaAtualizacao FROM Currculo"
+	querry := "SELECT idLattes,UltimaAtualizacao FROM Curriculo"
 	rows, err := cr.Connection.Query(querry)
 
 	if err != nil {
@@ -49,7 +49,7 @@ func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
 
 func (cr *CurriculoRepository) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
 	query, err := cr.Connection.Prepare("SELECT c.idLattes, c.UltimaAtualizacao " +
-		"FROM Currculo c " +
+		"FROM Curriculo c " +
 		"WHERE c.idLattes = ?")
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (cr *CurriculoRepository) GetCurriculoById(idLattes int) (*model.Curriculo,
 }
 
 func (cr *CurriculoRepository) CreateCurriculo(curriculo *model.Curriculo, idPessoa int) (int, error) {
-	query, err := cr.Connection.Prepare(`INSERT INTO Currculo (idLattes,UltimaAtualizacao,idPessoa)
+	query, err := cr.Connection.Prepare(`INSERT INTO Curriculo (idLattes,UltimaAtualizacao,idPessoa)
 		VALUES(?,?,²?)`)
 
 	if err != nil {
@@ -109,7 +109,7 @@ func (cr *CurriculoRepository) CreateCurriculo(curriculo *model.Curriculo, idPes
 }
 
 func (cr *CurriculoRepository) UpdateCurriculo(curriculo *model.Curriculo) error {
-	query, err := cr.Connection.Prepare("UPDATE Currculo " +
+	query, err := cr.Connection.Prepare("UPDATE Curriculo " +
 		"SET UltimaAtualizacao = ? " +
 		"WHERE idLattes = ?")
 

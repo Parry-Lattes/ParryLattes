@@ -20,9 +20,9 @@ func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
 	return cu.Repository.GetCurriculos()
 }
 
-func (cu *CurriculoUsecase) GetCurriculoById(idCurriculo int) (*model.Curriculo, error) {
-	curriculo, err := cu.Repository.GetCurriculoById(idCurriculo)
-
+func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
+	curriculo, err := cu.Repository.GetCurriculoById(idLattes)
+	
 	if err != nil {
 		return nil, err
 	}

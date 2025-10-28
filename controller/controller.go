@@ -36,7 +36,7 @@ func (p *Controller) GetCurriculos(c echo.Context) error {
 
 func (p *Controller) GetCurriculoById(c echo.Context) error {
 
-	id := c.Param("idCurriculo")
+	id := c.Param("idLattes")
 
 	if id == "" {
 		response := model.Response{
@@ -46,7 +46,7 @@ func (p *Controller) GetCurriculoById(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	idCurrculo, err := strconv.Atoi(id)
+	idLattes, err := strconv.Atoi(id)
 
 	if err != nil {
 		response := model.Response{
@@ -55,7 +55,8 @@ func (p *Controller) GetCurriculoById(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response)
 	}
 
-	curriculo, err := p.CurriculoUsecase.GetCurriculoById(idCurrculo)
+	curriculo, err := p.CurriculoUsecase.GetCurriculoById(idLattes)
+
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, err)
@@ -67,6 +68,8 @@ func (p *Controller) GetCurriculoById(c echo.Context) error {
 		}
 		return c.JSON(http.StatusNotFound, response)
 	}
+
+	curriculo.Producoes, err = p.ProducaoUsecase.GetProducaoById(curriculo.IdLattes)
 
 	return c.JSON(http.StatusOK, curriculo)
 }
