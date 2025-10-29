@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"parry_end/controller"
+	"parry_end/controllers"
 	"parry_end/db"
 	"parry_end/repository"
 	"parry_end/usecase"
@@ -24,27 +24,26 @@ func main() {
 	CurriculoRepository := repository.NewCurriculoRepository(dbConnection)
 	ProducaoRepository := repository.NewProducaoRepository(dbConnection)
 
-	curriculoUsecase := usecase.NewCurriculoUseCase(CurriculoRepository)
-	pessoaUseCase := usecase.NewPessoaUseCase(PessoaRepository)
-	producaoUsecase := usecase.NewProducaoUseCase(ProducaoRepository)
+	curriculoUsecase := usecase.NewCurriculoUseCase(&CurriculoRepository)
+	pessoaUseCase := usecase.NewPessoaUseCase(&PessoaRepository)
+	producaoUsecase := usecase.NewProducaoUseCase(&ProducaoRepository)
 
-	controller := controller.NewController(pessoaUseCase, curriculoUsecase, producaoUsecase)
+	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
+	controllerCurriculo := controllers.NewControllerCurriculo(&curriculoUsecase, &producaoUsecase)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET("/pessoa", controller.GetPessoas)
-	e.GET("/pessoa/:CPF", controller.GetPessoaByCPF)
-	e.POST("/pessoa/create", controller.CreatePessoa)
-	e.POST("/pessoa/update", controller.UpdatePessoa)
+	e.GET("/pessoa", controllerPessoa.GetPessoas)
+	e.GET("/pessoa/:CPF", controllerPessoa.GetPessoaByCPF)
+	e.POST("/pessoa/create", controllerPessoa.CreatePessoa)
+	e.POST("/pessoa/update", controllerPessoa.UpdatePessoa)
 
-	e.GET("/curriculo/:idLattes", controller.GetCurriculoById)
-	e.GET("/curriculo", controller.GetCurriculos)
-	e.POST("/curriculo/create", controller.CreateCurriculo)
-	e.POST("/curriculo/update", controller.UpdateCurriculo)
+	e.GET("/curriculo/:idLattes", controllerCurriculo.GetCurriculoById)
+	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
+	e.POST("/curriculo/create", controllerCurriculo.CreateCurriculo)
+	e.POST("/curriculo/update", controllerCurriculo.UpdateCurriculo)
 
-	e.GET("/producao", controller.GetProducoes)
-	e.GET("/producao/:idLattes", controller.GetProducaoById)
 	e.Logger.Fatal(e.Start(":1323"))
 }

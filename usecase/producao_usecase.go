@@ -6,10 +6,10 @@ import (
 )
 
 type ProducaoUsecase struct {
-	Repository repository.ProducaoRepository
+	Repository *repository.ProducaoRepository
 }
 
-func NewProducaoUseCase(repo repository.ProducaoRepository) ProducaoUsecase {
+func NewProducaoUseCase(repo *repository.ProducaoRepository) ProducaoUsecase {
 	return ProducaoUsecase{
 		Repository: repo,
 	}

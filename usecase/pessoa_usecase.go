@@ -6,10 +6,10 @@ import (
 )
 
 type PessoaUsecase struct {
-	repository repository.PessoaRepository
+	repository *repository.PessoaRepository
 }
 
-func NewPessoaUseCase(repo repository.PessoaRepository) PessoaUsecase {
+func NewPessoaUseCase(repo *repository.PessoaRepository) PessoaUsecase {
 	return PessoaUsecase{
 		repository: repo,
 	}

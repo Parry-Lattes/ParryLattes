@@ -7,10 +7,10 @@ import (
 )
 
 type CurriculoUsecase struct {
-	Repository repository.CurriculoRepository
+	Repository *repository.CurriculoRepository
 }
 
-func NewCurriculoUseCase(repo repository.CurriculoRepository) CurriculoUsecase {
+func NewCurriculoUseCase(repo *repository.CurriculoRepository) CurriculoUsecase {
 	return CurriculoUsecase{
 		Repository: repo,
 	}
