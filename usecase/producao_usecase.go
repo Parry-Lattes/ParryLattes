@@ -19,14 +19,14 @@ func (pu *ProducaoUsecase) GetProducoes() (*[]model.Producao, error) {
 	return pu.Repository.GetProducoes()
 }
 
-func (pu *ProducaoUsecase) GetProducaoById(idProducao int) (*[]model.Producao, error) {
-	producao, err := pu.Repository.GetProducaoById(idProducao)
+// func (pu *ProducaoUsecase) GetProducaoById(idProducao int) (*[]model.Producao, error) {
+// 	producao, err := pu.Repository.GetProducaoById(idProducao)
 
-	if err != nil {
-		return nil, err
-	}
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return producao, nil
-}
+// 	return producao, nil
+//}
 
 // func (pu *ProducaoUsecase) CreateProducao(producao model.Producao,idLattes int)

@@ -1,6 +1,7 @@
 package model
 
 type Producao struct {
+	IdProducao       int64    `json:"-"`
 	Autor            string `json:"autor"`
 	Titulo           string `json:"titulo"`
 	Descricao        string `json:"descricao"`

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type Email struct {
+type Email struct {  //type Email string
 	Email string
 }
 

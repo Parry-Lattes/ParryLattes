@@ -1,28 +1,35 @@
 package usecase
 
 import (
-	"fmt"
 	"parry_end/model"
 	"parry_end/repository"
 )
 
 type CurriculoUsecase struct {
-	Repository *repository.CurriculoRepository
+	CurriculoRepository *repository.CurriculoRepository
+	ProducaoRepository  *repository.ProducaoRepository
 }
 
-func NewCurriculoUseCase(repo *repository.CurriculoRepository) CurriculoUsecase {
+func NewCurriculoUseCase(curriculorepo *repository.CurriculoRepository, producaorepo *repository.ProducaoRepository) CurriculoUsecase {
 	return CurriculoUsecase{
-		Repository: repo,
+		CurriculoRepository: curriculorepo,
+		ProducaoRepository:  producaorepo,
 	}
 }
 
 func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
-	return cu.Repository.GetCurriculos()
+	return cu.CurriculoRepository.GetCurriculos()
 }
 
 func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
-	curriculo, err := cu.Repository.GetCurriculoById(idLattes)
-	
+	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idLattes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoById(curriculo)
+
 	if err != nil {
 		return nil, err
 	}
@@ -30,20 +37,31 @@ func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, er
 	return curriculo, nil
 }
 
-func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, idPessoa int) (*model.Curriculo, error) {
-	IdCurriculo, err := cu.Repository.CreateCurriculo(curriculo, idPessoa)
+func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, pessoa *model.Pessoa, idTipo int) (*model.Curriculo, error) {
+
+	curriculo, err := cu.CurriculoRepository.CreateCurriculo(curriculo, pessoa)
 
 	if err != nil {
 		return &model.Curriculo{}, err
 	}
 
-	fmt.Println(IdCurriculo)
+	for _, value := range *curriculo.Producoes {
+
+		Producao, err := cu.ProducaoRepository.CreateProducao(&value, curriculo, idTipo)
+
+		if err != nil {
+			return &model.Curriculo{}, err
+		}
+
+		cu.CurriculoRepository.LinkCurriculoProducao(curriculo, Producao)
+
+	}
 
 	return curriculo, nil
 }
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
-	err := cu.Repository.UpdateCurriculo(curriculo)
+	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
 
 	if err != nil {
 		return err

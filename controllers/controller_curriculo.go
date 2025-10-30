@@ -12,13 +12,11 @@ import (
 
 type ControllerCurriculo struct {
 	CurriculoUsecase *usecase.CurriculoUsecase
-	ProducaoUsecase  *usecase.ProducaoUsecase
 }
 
-func NewControllerCurriculo(usecase_curriculo *usecase.CurriculoUsecase, usecase_producao *usecase.ProducaoUsecase) ControllerCurriculo {
+func NewControllerCurriculo(usecase_curriculo *usecase.CurriculoUsecase) ControllerCurriculo {
 	return ControllerCurriculo{
 		CurriculoUsecase: usecase_curriculo,
-		ProducaoUsecase: usecase_producao,
 	}
 }
 
@@ -67,7 +65,6 @@ func (c *ControllerCurriculo) GetCurriculoById(e echo.Context) error {
 		return e.JSON(http.StatusNotFound, response)
 	}
 
-	curriculo.Producoes, err = c.ProducaoUsecase.GetProducaoById(curriculo.IdLattes)
 	return e.JSON(http.StatusOK, curriculo)
 }
 func (c *ControllerCurriculo) UpdateCurriculo(e echo.Context) error {
@@ -90,24 +87,24 @@ func (c *ControllerCurriculo) UpdateCurriculo(e echo.Context) error {
 
 }
 
-func (c *ControllerCurriculo) CreateCurriculo(e echo.Context) error {
+// func (c *ControllerCurriculo) CreateCurriculo(e echo.Context) error {
 
-	var curriculo model.Curriculo
-	err := e.Bind(&curriculo)
+// 	var curriculo model.Curriculo
+// 	err := e.Bind(&curriculo)
 
-	if err != nil {
-		fmt.Println(err)
-		e.JSON(http.StatusBadRequest, err)
-	}
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		e.JSON(http.StatusBadRequest, err)
+// 	}
 
-	var id int
-	insertedCurriculo, err := c.CurriculoUsecase.CreateCurriculo(&curriculo, id)
+// 	var id int
+// 	insertedCurriculo, err := c.CurriculoUsecase.CreateCurriculo(&curriculo, id)
 
-	if err != nil {
-		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
-	}
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		e.JSON(http.StatusInternalServerError, err)
+// 	}
 
-	return e.JSON(http.StatusCreated, insertedCurriculo)
+// 	return e.JSON(http.StatusCreated, insertedCurriculo)
 
-}
+// }
