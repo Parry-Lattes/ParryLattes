@@ -22,6 +22,7 @@ func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
 }
 
 func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
+
 	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idLattes)
 
 	if err != nil {

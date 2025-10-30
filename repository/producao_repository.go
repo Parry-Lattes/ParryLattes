@@ -68,7 +68,7 @@ func (pr *ProducaoRepository) GetProducaoById(curriculo *model.Curriculo) (*[]mo
 		"WHERE c.idLattes = ? " +
 		"ORDER BY p.DataDePublicacao DESC")
 
-	rows, err := pr.Connection.Query(query, curriculo.IdCurriculo)
+	rows, err := pr.Connection.Query(query, curriculo.IdLattes)
 
 	if err != nil {
 		fmt.Println(err)
@@ -134,7 +134,6 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 		fmt.Println("Errro:", err)
 		return &model.Producao{}, err
 	}
-
 
 	producao.IdProducao = id
 
