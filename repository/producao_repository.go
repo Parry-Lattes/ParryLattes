@@ -102,9 +102,9 @@ func (pr *ProducaoRepository) GetProducaoById(curriculo *model.Curriculo) (*[]mo
 	return &producaoList, nil
 }
 
-func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo *model.Curriculo, idTipo int) (*model.Producao, error) {
+func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo *model.Curriculo) (*model.Producao, error) {
 
-	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, idTipo, Descricao, DataDePublicacao, Link, Autor) " +
+	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, idTipo,idGrupoDePesquisa, Descricao, DataDePublicacao, Link, Autor) " +
 		"VALUES (?,?,?,?,?,?)")
 
 	if err != nil {
@@ -116,7 +116,8 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 
 	result, err := query.Exec(
 		producao.Titulo,
-		idTipo,
+		producao.Tipo,
+		producao.IdGrupoDePesquisa,
 		producao.Descricao,
 		producao.DataDePublicacao,
 		producao.Link,

@@ -38,30 +38,10 @@ func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, er
 	return curriculo, nil
 }
 
-func (cu *CurriculoUsecase) CreateCurriculo(curriculo *model.Curriculo, pessoa *model.Pessoa, idTipo int) (*model.Curriculo, error) {
 
-	curriculo, err := cu.CurriculoRepository.CreateCurriculo(curriculo, pessoa)
-
-	if err != nil {
-		return &model.Curriculo{}, err
-	}
-
-	for _, value := range *curriculo.Producoes {
-
-		Producao, err := cu.ProducaoRepository.CreateProducao(&value, curriculo, idTipo)
-
-		if err != nil {
-			return &model.Curriculo{}, err
-		}
-
-		cu.CurriculoRepository.LinkCurriculoProducao(curriculo, Producao)
-
-	}
-
-	return curriculo, nil
-}
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
+	
 	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
 
 	if err != nil {
@@ -70,3 +50,4 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 
 	return nil
 }
+

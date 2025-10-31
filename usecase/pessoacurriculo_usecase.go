@@ -1,25 +1,57 @@
 package usecase
 
 import (
-	"parry_end/repository"
+	"fmt"
+	"parry_end/model"
 )
 
 type PessoaCurriculoUsecasse struct {
-	PessoaRepository    *repository.PessoaRepository
-	CurriculoRepository *repository.CurriculoRepository
+	PessoaUsecase    *PessoaUsecase
+	CurriculoUsecase *CurriculoUsecase
 }
 
 func NewPessoaCurriculoUsecase(
-	pessoarepository *repository.PessoaRepository,
-	curriculorepository *repository.CurriculoRepository) PessoaCurriculoUsecasse {
+	pessoareUsecase *PessoaUsecase,
+	curriculoUsecase *CurriculoUsecase) PessoaCurriculoUsecasse {
 	return PessoaCurriculoUsecasse{
-		PessoaRepository:    pessoarepository,
-		CurriculoRepository: curriculorepository,
+		PessoaUsecase:    pessoareUsecase,
+		CurriculoUsecase: curriculoUsecase,
 	}
 }
 
-// func (pcu *PessoaCurriculoUsecasse) CreateCurriculo(curriculo *model.Curriculo, pessoa *model.Pessoa) error{
-// 	idPessoa, err := pcu.GetPesoa
+func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.PessoaCurriculo) error {
 
-// 	idCurriculo, err := pcu.CurriculoRepository.CreateCurriculo(curriculo,)
-// }
+	pessoa, err := cu.PessoaUsecase.GetPessoaByCPF(pessoaCurriculo.Pessoa.CPF)
+
+	if err != nil {
+		return err
+	}
+
+	curriculo, err := cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(pessoaCurriculo.Curriculo, pessoa)
+
+	if err != nil {
+		fmt.Println("Sexo 1")
+		return err
+	}
+
+	fmt.Println("Sexo")
+
+	for _, value := range *curriculo.Producoes {
+
+		fmt.Println(value)
+		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(&value, curriculo)
+
+		if err != nil {
+			fmt.Println("Sexo 3")
+			return err
+		}
+		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(curriculo, Producao)
+
+		if err != nil {
+			fmt.Println("Sexo 2")
+			return err
+		}
+	}
+
+	return nil
+}

@@ -80,10 +80,10 @@ func (cr *CurriculoRepository) GetCurriculoById(idLattes int) (*model.Curriculo,
 
 func (cr *CurriculoRepository) CreateCurriculo(curriculo *model.Curriculo, pessoa *model.Pessoa) (*model.Curriculo, error) {
 	query, err := cr.Connection.Prepare(`INSERT INTO Curriculo (idLattes,UltimaAtualizacao,idPessoa)
-		VALUES(?,?,²?)`)
+		VALUES(?,?,?)`)
 
 	if err != nil {
-		fmt.Println("Erro ao Preparar query:", err)
+		fmt.Println("Erro ao Preparar query: SEXO", err)
 		return &model.Curriculo{}, err
 	}
 

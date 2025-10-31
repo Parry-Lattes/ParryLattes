@@ -26,10 +26,11 @@ func main() {
 
 	curriculoUsecase := usecase.NewCurriculoUseCase(&CurriculoRepository, &ProducaoRepository)
 	pessoaUseCase := usecase.NewPessoaUseCase(&PessoaRepository)
-	// producaoUsecase := usecase.NewProducaoUseCase(&ProducaoRepository)
+	pessoaCurriculoUsecase := usecase.NewPessoaCurriculoUsecase(&pessoaUseCase, &curriculoUsecase)
 
 	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
 	controllerCurriculo := controllers.NewControllerCurriculo(&curriculoUsecase)
+	controllerPessoaCurriculo := controllers.NewControllerPessoaCurriculo(&pessoaCurriculoUsecase)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
@@ -42,7 +43,7 @@ func main() {
 
 	e.GET("/curriculo/:idLattes", controllerCurriculo.GetCurriculoById)
 	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
-	//e.POST("/curriculo/create", controllerCurriculo.CreateCurriculo)
+	e.POST("/curriculo/create", controllerPessoaCurriculo.CreateCurriculo)
 	e.POST("/curriculo/update", controllerCurriculo.UpdateCurriculo)
 
 	e.Logger.Fatal(e.Start(":1323"))
