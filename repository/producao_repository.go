@@ -42,7 +42,7 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 			&producaoObj.Descricao,
 			&producaoObj.Link,
 			&producaoObj.DataDePublicacao,
-			&producaoObj.Tipo,
+			&producaoObj.TipoS,
 		)
 
 		if err != nil {
@@ -87,7 +87,7 @@ func (pr *ProducaoRepository) GetProducaoById(curriculo *model.Curriculo) (*[]mo
 			&producaoObj.Descricao,
 			&producaoObj.Link,
 			&producaoObj.DataDePublicacao,
-			&producaoObj.Tipo,
+			&producaoObj.TipoS,
 		)
 		if err != nil {
 			fmt.Println(err)
@@ -104,7 +104,7 @@ func (pr *ProducaoRepository) GetProducaoById(curriculo *model.Curriculo) (*[]mo
 
 func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo *model.Curriculo) (*model.Producao, error) {
 
-	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, idTipo,idGrupoDePesquisa, Descricao, DataDePublicacao, Link, Autor) " +
+	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, idTipo, Descricao, DataDePublicacao, Link, Autor) " +
 		"VALUES (?,?,?,?,?,?)")
 
 	if err != nil {
@@ -116,8 +116,7 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 
 	result, err := query.Exec(
 		producao.Titulo,
-		producao.Tipo,
-		producao.IdGrupoDePesquisa,
+		producao.TipoId,
 		producao.Descricao,
 		producao.DataDePublicacao,
 		producao.Link,
@@ -152,7 +151,7 @@ func (pr *ProducaoRepository) GetProducaoTypeId(producao *model.Producao) (int, 
 
 	var idTipoDeProducao int
 
-	err = query.QueryRow(producao.Tipo).Scan(
+	err = query.QueryRow(producao.TipoId).Scan(
 		&idTipoDeProducao,
 	)
 

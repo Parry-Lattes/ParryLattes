@@ -1,7 +1,7 @@
 package model
 
 type Pessoa struct {
-	IdPessoa      int64    `json:"-"`
+	IdPessoa      int64  `json:"-"`
 	Nome          string `json:"nome"`
 	CPF           int    `json:"cpf"`
 	Sexo          bool   `json:"sexo"`

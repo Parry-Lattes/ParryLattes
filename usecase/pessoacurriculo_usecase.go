@@ -21,34 +21,32 @@ func NewPessoaCurriculoUsecase(
 
 func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.PessoaCurriculo) error {
 
+	fmt.Println("sexo")
+
+	// fmt.Println(pessoaCurriculo.Pessoa.CPF)
+
 	pessoa, err := cu.PessoaUsecase.GetPessoaByCPF(pessoaCurriculo.Pessoa.CPF)
 
 	if err != nil {
 		return err
 	}
 
-	curriculo, err := cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(pessoaCurriculo.Curriculo, pessoa)
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(pessoaCurriculo.Curriculo, pessoa)
 
 	if err != nil {
-		fmt.Println("Sexo 1")
 		return err
 	}
 
-	fmt.Println("Sexo")
+	for _, value := range *pessoaCurriculo.Curriculo.Producoes {
 
-	for _, value := range *curriculo.Producoes {
-
-		fmt.Println(value)
-		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(&value, curriculo)
+		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(&value, pessoaCurriculo.Curriculo)
 
 		if err != nil {
-			fmt.Println("Sexo 3")
 			return err
 		}
-		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(curriculo, Producao)
+		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(pessoaCurriculo.Curriculo, Producao)
 
 		if err != nil {
-			fmt.Println("Sexo 2")
 			return err
 		}
 	}

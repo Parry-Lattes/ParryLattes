@@ -83,7 +83,7 @@ func (cr *CurriculoRepository) CreateCurriculo(curriculo *model.Curriculo, pesso
 		VALUES(?,?,?)`)
 
 	if err != nil {
-		fmt.Println("Erro ao Preparar query: SEXO", err)
+		fmt.Println("Erro ao Preparar query:", err)
 		return &model.Curriculo{}, err
 	}
 
