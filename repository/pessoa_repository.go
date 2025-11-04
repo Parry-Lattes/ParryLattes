@@ -19,7 +19,7 @@ func NewPessoaRepository(connection *sql.DB) PessoaRepository {
 
 func (pr *PessoaRepository) GetPessoas() (*[]model.Pessoa, error) {
 
-	querry := "SELECT idPessoa,Nome,CPF,Sexo,Abreviatura,Nacionalidade " +
+	querry := "SELECT idPessoa,Nome,idLattes,Sexo,Abreviatura,Nacionalidade " +
 		"FROM Pessoa"
 	rows, err := pr.Connection.Query(querry)
 	if err != nil {
@@ -34,7 +34,7 @@ func (pr *PessoaRepository) GetPessoas() (*[]model.Pessoa, error) {
 		err = rows.Scan(
 			&pessoaObj.IdPessoa,
 			&pessoaObj.Nome,
-			&pessoaObj.CPF,
+			&pessoaObj.IdLattes,
 			&pessoaObj.Sexo,
 			&pessoaObj.Abreviatura,
 			&pessoaObj.Nacionalidade,
@@ -53,9 +53,8 @@ func (pr *PessoaRepository) GetPessoas() (*[]model.Pessoa, error) {
 }
 
 func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) error {
-	query, err := pr.Connection.Prepare(`
-		INSERT INTO Pessoa (Nome,CPF,Sexo,Abreviatura,Nacionalidade) 
-		VALUES (?, ?, ?, ?, ?)`)
+	query, err := pr.Connection.Prepare("INSERT INTO Pessoa (Nome,idLattes,Sexo,Abreviatura,Nacionalidade) " +
+		"VALUES (?, ?, ?, ?, ?)")
 
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
@@ -65,7 +64,7 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) error {
 
 	result, err := query.Exec(
 		pessoa.Nome,
-		pessoa.CPF,
+		pessoa.IdLattes,
 		pessoa.Sexo,
 		pessoa.Abreviatura,
 		pessoa.Nacionalidade,
@@ -85,9 +84,9 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) error {
 	return nil
 }
 
-func (pr *PessoaRepository) GetPessoaByCPF(CPF int) (*model.Pessoa, error) {
+func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, error) {
 
-	query, err := pr.Connection.Prepare("SELECT idPessoa,Nome,CPF,Sexo,Abreviatura,Nacionalidade FROM Pessoa WHERE CPF = ?")
+	query, err := pr.Connection.Prepare("SELECT idPessoa,Nome,idLattes,Sexo,Abreviatura,Nacionalidade FROM Pessoa WHERE idLattes = ?")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -95,10 +94,10 @@ func (pr *PessoaRepository) GetPessoaByCPF(CPF int) (*model.Pessoa, error) {
 
 	var pessoa model.Pessoa
 
-	err = query.QueryRow(CPF).Scan(
+	err = query.QueryRow(IdLattes).Scan(
 		&pessoa.IdPessoa,
 		&pessoa.Nome,
-		&pessoa.CPF,
+		&pessoa.IdLattes,
 		&pessoa.Sexo,
 		&pessoa.Abreviatura,
 		&pessoa.Nacionalidade)
@@ -119,11 +118,11 @@ func (pr *PessoaRepository) GetPessoaByCPF(CPF int) (*model.Pessoa, error) {
 func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 	query, err := pr.Connection.Prepare("UPDATE Pessoa " +
 		"SET Nome = ?, " +
-		"CPF = ?, " +
+		"idLattes = ?, " +
 		"Sexo = ?, " +
 		"Abreviatura = ?, " +
 		"Nacionalidade = ? " +
-		"WHERE CPF = ?")
+		"WHERE idLattes = ?")
 
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
@@ -132,11 +131,11 @@ func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 
 	_, err = query.Exec(
 		pessoa.Nome,
-		pessoa.CPF,
+		pessoa.IdLattes,
 		pessoa.Sexo,
 		pessoa.Abreviatura,
 		pessoa.Nacionalidade,
-		pessoa.CPF,
+		pessoa.IdLattes,
 	)
 
 	if err != nil {

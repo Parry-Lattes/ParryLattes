@@ -29,8 +29,9 @@ func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
 	return nil
 }
 
-func (pu *PessoaUsecase) GetPessoaByCPF(CPF int) (*model.Pessoa, error) {
-	pessoa, err := pu.repository.GetPessoaByCPF(CPF)
+func (pu *PessoaUsecase) GetPessoaByIdLattes(idLattes int) (*model.Pessoa, error) {
+	
+	pessoa, err := pu.repository.GetPessoaByIdLattes(idLattes)
 
 	if err != nil {
 		return nil, err

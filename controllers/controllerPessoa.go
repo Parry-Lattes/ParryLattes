@@ -32,29 +32,29 @@ func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
 	return e.JSON(http.StatusOK, pessoas)
 }
 
-func (c *ControllerPessoa) GetPessoaByCPF(e echo.Context) error {
+func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 
-	CPF := e.Param("CPF")
+	idLatttes := e.Param("idLattes")
 
-	if CPF == "" {
+	if idLatttes == "" {
 
 		response := model.Response{
-			Message: "Null CPF",
+			Message: "Null IDLattes",
 		}
 		return e.JSON(http.StatusBadRequest, response)
 
 	}
 
-	CPFPessoa, err := strconv.Atoi(CPF)
+	idLattes, err := strconv.Atoi(idLatttes)
 
 	if err != nil {
 		response := model.Response{
-			Message: "CPF Must be a number",
+			Message: "IdLattes Must be a number",
 		}
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	pessoa, err := c.PessoaUsecase.GetPessoaByCPF(CPFPessoa)
+	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(idLattes)
 
 	if err != nil {
 		fmt.Println(err)

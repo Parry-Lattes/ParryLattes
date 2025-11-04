@@ -7,6 +7,7 @@ type Producao struct {
 	Descricao        string `json:"descricao"`
 	Link             string `json:"link"`
 	DataDePublicacao string `json:"data_de_publicacao"`
-	TipoId             int64  `json:"tipo_id"`
+	TipoId           int64  `json:"tipo_id"`
 	TipoS            string `json:"tipo_s"`
+	Hash             int    `json:"hash"`
 }

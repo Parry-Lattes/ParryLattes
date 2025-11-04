@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"database/sql"
 	"parry_end/model"
 	"parry_end/repository"
 )
@@ -29,7 +30,7 @@ func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, er
 		return nil, err
 	}
 
-	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoById(curriculo)
+	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(curriculo)
 
 	if err != nil {
 		return nil, err
@@ -38,10 +39,19 @@ func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, er
 	return curriculo, nil
 }
 
-
-
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
-	
+
+	for _, values := range *curriculo.Producoes {
+
+		_, err := cu.ProducaoRepository.GetProducaoByHash(&values)
+
+		if err == sql.ErrNoRows {
+
+			cu.ProducaoRepository.CreateProducao(&values, curriculo)
+
+		}
+
+	}
 	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
 
 	if err != nil {
@@ -50,4 +60,3 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 
 	return nil
 }
-
