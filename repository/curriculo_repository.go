@@ -189,3 +189,49 @@ func (cr *CurriculoRepository) GetCurriculoId(curriculo *model.Curriculo) (*int,
 	return &idCurriculo, nil
 
 }
+
+func (cu *CurriculoRepository) DeleteCurriculo(idPessoa int64) error {
+	query := "DELETE FROM Curriculo WHERE idPessoa = ?"
+
+	result, err := cu.Connection.Exec(query, idPessoa)
+	if err != nil {
+		fmt.Println("erro ao deletar Curriculo")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Curriculo não encontrada:")
+		return err
+	}
+
+	return nil
+}
+
+func (cu *CurriculoRepository) UnlinkProducaoCurriculo(curriculo *model.Curriculo, producao *model.Producao) error {
+query := "DELETE FROM CurriculoProducao WHERE idProducao = ?"
+
+	result, err := cu.Connection.Exec(query, producao.IdProducao)
+	if err != nil {
+		fmt.Println("erro ao deletar CurriculoProducao")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("CurriculoProducao não encontrada:")
+		return err
+	}
+
+	return nil
+}

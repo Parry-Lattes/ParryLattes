@@ -31,7 +31,6 @@ func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.Pessoa
 	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(pessoaCurriculo.Curriculo, pessoa)
 
 	if err != nil {
-		fmt.Println("Erro 2")
 		return err
 	}
 
@@ -40,16 +39,46 @@ func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.Pessoa
 		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(&value, pessoaCurriculo.Curriculo)
 
 		if err != nil {
-			fmt.Println("Erro 3")
 			return err
 		}
 		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(pessoaCurriculo.Curriculo, Producao)
 
 		if err != nil {
-			fmt.Println("Erro 4")
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (cu *PessoaCurriculoUsecasse) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
+
+	var err error
+
+	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(pessoaCurriculo.Pessoa.IdLattes)
+
+	if err != nil {
+		return err
+	}
+
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(pessoaCurriculo.Curriculo.IdPessoa)
+
+	if err != nil {
+		return err
+	}
+
+	for _, value := range *pessoaCurriculo.Curriculo.Producoes {
+		err = cu.CurriculoUsecase.CurriculoRepository.UnlinkProducaoCurriculo(pessoaCurriculo.Curriculo, &value)
+		if err != nil {
+			return err
+		}
+
+		err = cu.CurriculoUsecase.DeleteProducao(value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }

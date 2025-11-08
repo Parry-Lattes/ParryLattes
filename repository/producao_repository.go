@@ -207,6 +207,34 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 	return &producaoObj, nil
 }
 
+func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
+	query := "DELETE FROM Producao WHERE Hash = ?"
+
+	result, err := pr.Connection.Exec(query, hash)
+	if err != nil {
+		fmt.Println("erro ao deletar producao")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("producao não encontrada:")
+		return err
+	}
+
+	return nil
+
+}
+
+// func (pr *ProducaoRepository) CheckProducaoHash(hash int64)([]int64, error){
+// 	query := "SELECT "
+// }
+
 // func (pr *ProducaoRepository) UpdateProducao(producao *model.Producao, curriculo *model.Curriculo) error {
 // 	query, err := pr.Connection.Prepare("UPDATE Producao" +
 // 		"SET Autor = ?," +

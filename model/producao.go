@@ -9,5 +9,5 @@ type Producao struct {
 	DataDePublicacao string `json:"data_de_publicacao"`
 	TipoId           int64  `json:"tipo_id"`
 	TipoS            string `json:"tipo_s"`
-	Hash             int    `json:"hash"`
+	Hash             int64    `json:"hash"`
 }

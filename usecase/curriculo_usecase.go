@@ -22,9 +22,9 @@ func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
 	return cu.CurriculoRepository.GetCurriculos()
 }
 
-func (cu *CurriculoUsecase) GetCurriculoById(idLattes int) (*model.Curriculo, error) {
+func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int) (*model.Curriculo, error) {
 
-	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idLattes)
+	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idPessoa)
 
 	if err != nil {
 		return nil, err
@@ -53,6 +53,16 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 
 	}
 	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
+	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
 
 	if err != nil {
 		return err

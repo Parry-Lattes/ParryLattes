@@ -146,3 +146,27 @@ func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 	return nil
 
 }
+
+func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
+	query := "DELETE FROM Pessoa WHERE idLattes = ?"
+
+	result, err := pr.Connection.Exec(query, idLattes)
+	if err != nil {
+		fmt.Println("erro ao deletar Pessoa")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("pessoa não encontrada:")
+		return err
+	}
+
+	return nil
+
+}
