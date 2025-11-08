@@ -13,6 +13,8 @@ services:
     image: mysql:8.0
     restart: "no"
     container_name: ParryDB
+    volumes:
+      - ./resources:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
     environment:
