@@ -30,6 +30,8 @@ go/pkg/mod/
 # Diretório de build
 /build/
 
+./tmp
+
 # Arquivos de ambiente
 .env
 .env.local
