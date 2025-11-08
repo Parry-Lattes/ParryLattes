@@ -1,6 +1,6 @@
 module parry_end
 
-go 1.25.3
+go 1.25.1
 
 require (
 	github.com/go-sql-driver/mysql v1.9.3

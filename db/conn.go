@@ -16,7 +16,7 @@ func ConnectDB() error {
 	cfg.User = "root"
 	cfg.Passwd = "1234"
 	cfg.Net = "tcp"
-	cfg.Addr = "127.0.0.1:3306"
+	cfg.Addr = "ParryDB:3306"
 	cfg.DBName = "mydb"
 
 	var err error
