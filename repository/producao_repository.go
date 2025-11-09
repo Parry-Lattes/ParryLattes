@@ -28,7 +28,7 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
-		return &[]model.Producao{}, err
+		return nil, err
 	}
 
 	var producaoList []model.Producao
@@ -47,7 +47,7 @@ func (pr *ProducaoRepository) GetProducoes() (*[]model.Producao, error) {
 		)
 
 		if err != nil {
-			return &[]model.Producao{}, err
+			return nil, err
 		}
 
 		producaoList = append(producaoList, producaoObj)
@@ -93,7 +93,7 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(curriculo *model.Curriculo) 
 		)
 		if err != nil {
 			fmt.Println(err)
-			return &[]model.Producao{}, err
+			return nil, err
 		}
 
 		producaoList = append(producaoList, producaoObj)
@@ -111,10 +111,8 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 
 	if err != nil {
 		fmt.Println("Erro ao Preparar query:", err)
-		return &model.Producao{}, err
+		return nil, err
 	}
-
-	defer query.Close()
 
 	result, err := query.Exec(
 		producao.Titulo,
@@ -128,18 +126,29 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
-		return &model.Producao{}, err
+		return nil, err
 	}
 
 	id, err := result.LastInsertId()
 
 	if err != nil {
 		fmt.Println("Errro:", err)
-		return &model.Producao{}, err
+		return nil, err
+	}
+
+	for _, values := range *producao.Coautores {
+
+		values.IdProducao = producao.IdProducao
+		values, err = pr.CreateCoautor(&values)
+
+		if err != nil {
+			fmt.Println("Erro ao cadastrar abreviatura", err)
+			return nil, err
+		}
 	}
 
 	producao.IdProducao = id
-
+	query.Close()
 	return producao, nil
 }
 
@@ -185,26 +194,31 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 		return nil, err
 	}
 
-	var producaoObj model.Producao
-
 	err = rows.Scan(
-		&producaoObj.IdProducao,
-		&producaoObj.Autor,
-		&producaoObj.Titulo,
-		&producaoObj.Descricao,
-		&producaoObj.Link,
-		&producaoObj.DataDePublicacao,
-		&producaoObj.TipoS,
-		&producaoObj.Hash,
+		&producao.IdProducao,
+		&producao.Autor,
+		&producao.Titulo,
+		&producao.Descricao,
+		&producao.Link,
+		&producao.DataDePublicacao,
+		&producao.TipoS,
+		&producao.Hash,
 	)
 	if err != nil {
 		fmt.Println(err)
-		return &model.Producao{}, err
+		return nil, err
+	}
+
+	producao.Coautores, err = pr.GetCoautoresById(&producao.IdProducao)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
 	}
 
 	rows.Close()
 
-	return &producaoObj, nil
+	return producao, nil
 }
 
 func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
@@ -228,6 +242,77 @@ func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
 	}
 
 	return nil
+
+}
+
+func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) (*[]model.Coautor, error) {
+
+	query := "SELECT idCoautor,idProducao,Coautor FROM Coautor WHERE idProducao = ?"
+
+	rows, err := pr.Connection.Query(query, IdProducao)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var coautorObj model.Coautor
+	var coautorList []model.Coautor
+
+	for rows.Next() {
+		err = rows.Scan(
+			&coautorObj.IdCoautor,
+			&coautorObj.IdProducao,
+			&coautorObj.Coautor,
+		)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil, err
+			}
+			fmt.Println(err)
+			return nil, err
+		}
+
+		coautorList = append(coautorList, coautorObj)
+	}
+
+	return &coautorList, nil
+}
+
+func (pr *ProducaoRepository) CreateCoautor(coautor *model.Coautor) (model.Coautor, error) {
+	
+	query, err := pr.Connection.Prepare("INSERT INTO Coautor (idProducao,Coautor)" +
+		"VALUES(?,?)")
+
+	if err != nil {
+		fmt.Println("Erro ao Preparar query:", err)
+		return model.Coautor{}, err
+	}
+
+	defer query.Close()
+
+	result, err := query.Exec(
+		coautor.IdProducao,
+		coautor.Coautor,
+	)
+
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return model.Coautor{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Erro ao obter último ID:", err)
+		return model.Coautor{}, err
+	}
+
+	coautor.IdCoautor = id
+
+	return *coautor, nil
 
 }
 

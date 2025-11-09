@@ -39,7 +39,7 @@ func main() {
 	e.GET("/pessoa", controllerPessoa.GetPessoas)
 	e.GET("/pessoa/:idLattes", controllerPessoa.GetPessoaByIdLattes)
 	e.POST("/pessoa", controllerPessoa.CreatePessoa)
-	e.POST("/pessoa/update", controllerPessoa.UpdatePessoa)
+	e.POST("/pessoa/update", controllerPessoa.UpdatePessoa) 
 
 	e.GET("/curriculo/:idLattes", controllerCurriculo.GetCurriculoById)
 	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
