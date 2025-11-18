@@ -5,15 +5,16 @@ import (
 	"net/http"
 	"parry_end/model"
 	"parry_end/usecase"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
 
 type ControllerPessoaCurriculo struct {
-	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecasse
+	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
 }
 
-func NewControllerPessoaCurriculo(usecase *usecase.PessoaCurriculoUsecasse) ControllerPessoaCurriculo {
+func NewControllerPessoaCurriculo(usecase *usecase.PessoaCurriculoUsecase) ControllerPessoaCurriculo {
 	return ControllerPessoaCurriculo{
 		PessoaCurriculoUsecase: usecase,
 	}
@@ -23,7 +24,27 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 
 	var pessoaCurriculo model.PessoaCurriculo
 
-	err := e.Bind(&pessoaCurriculo)
+	id := e.Param("idLattes")
+	
+		if id == "" {
+		response := model.Response{
+			Message: "Null ID",
+		}
+
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	idLattes, err := strconv.Atoi(id)
+
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	pessoaCurriculo.Pessoa.IdLattes = idLattes
+	err = e.Bind(&pessoaCurriculo.Curriculo)
 
 	if err != nil {
 		fmt.Println(err)

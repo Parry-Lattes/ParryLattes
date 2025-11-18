@@ -20,3 +20,4 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=mydb
+      #- MYSQL_TCP_PORT=7788

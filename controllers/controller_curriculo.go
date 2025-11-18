@@ -87,6 +87,8 @@ func (c *ControllerCurriculo) UpdateCurriculo(e echo.Context) error {
 
 }
 
+
+
 // func (c *ControllerCurriculo) CreateCurriculo(e echo.Context) error {
 
 // 	var curriculo model.Curriculo

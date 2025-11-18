@@ -3,6 +3,7 @@ package usecase
 import (
 	"parry_end/model"
 	"parry_end/repository"
+	
 )
 
 type PessoaUsecase struct {
@@ -15,17 +16,38 @@ func NewPessoaUseCase(repo *repository.PessoaRepository) PessoaUsecase {
 	}
 }
 
-func (pu *PessoaUsecase) GetPessoas() (*[]model.Pessoa, error) {
-	return pu.repository.GetPessoas()
+func (pu *PessoaUsecase) GetPessoas() ([]*model.Pessoa, error) {
+
+	pessoas,err := pu.repository.GetPessoas()
+	
+	if err != nil{
+		return nil,err
+	}
+	
+	for _,values := range pessoas{
+		values.Abreviaturas,err = pu.repository.GetAbreviaturasById(values.IdPessoa)				
+	}
+
+	return pessoas, nil
 }
 
 func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
-	err := pu.repository.CreatePessoa(pessoa)
+	pessoa,err := pu.repository.CreatePessoa(pessoa)
 
 	if err != nil {
 		return err
 	}
 
+	for _, value := range pessoa.Abreviaturas {
+		
+		value.IdPessoa = pessoa.IdPessoa
+		err = pu.repository.CreateAbreviatura(value)
+	
+		if err != nil {
+			return err
+		}
+	}
+	 
 	return nil
 }
 

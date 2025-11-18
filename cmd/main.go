@@ -39,12 +39,12 @@ func main() {
 	e.GET("/pessoa", controllerPessoa.GetPessoas)
 	e.GET("/pessoa/:idLattes", controllerPessoa.GetPessoaByIdLattes)
 	e.POST("/pessoa", controllerPessoa.CreatePessoa)
-	e.POST("/pessoa/update", controllerPessoa.UpdatePessoa) 
+	e.PUT("/pessoa", controllerPessoa.UpdatePessoa) 
 
-	e.GET("/curriculo/:idLattes", controllerCurriculo.GetCurriculoById)
+	e.GET("/pessoa/:idLattes/curriculo", controllerCurriculo.GetCurriculoById)
 	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
-	e.POST("/curriculo", controllerPessoaCurriculo.CreateCurriculo)
-	e.POST("/curriculo/update", controllerCurriculo.UpdateCurriculo)
+	e.POST("/pessoa/:idLattes/curriculo", controllerPessoaCurriculo.CreateCurriculo)
+	e.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

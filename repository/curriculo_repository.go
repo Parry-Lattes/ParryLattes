@@ -17,7 +17,7 @@ func NewCurriculoRepository(connection *sql.DB) CurriculoRepository {
 	}
 }
 
-func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
+func (cr *CurriculoRepository) GetCurriculos() ([]*model.Curriculo, error) {
 
 	querry := "SELECT idPessoa,UltimaAtualizacao FROM Curriculo"
 	rows, err := cr.Connection.Query(querry)
@@ -28,8 +28,8 @@ func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
 
 	defer rows.Close()
 
-	var curriculoList []model.Curriculo
-	var curriculoObj model.Curriculo
+	var curriculoList []*model.Curriculo
+		var curriculoObj *model.Curriculo = &model.Curriculo{}
 
 	for rows.Next() {
 
@@ -46,7 +46,7 @@ func (cr *CurriculoRepository) GetCurriculos() (*[]model.Curriculo, error) {
 
 	}
 
-	return &curriculoList, nil
+	return curriculoList, nil
 }
 
 func (cr *CurriculoRepository) GetCurriculoById(idPessoa int) (*model.Curriculo, error) {

@@ -5,21 +5,21 @@ import (
 	"parry_end/model"
 )
 
-type PessoaCurriculoUsecasse struct {
+type PessoaCurriculoUsecase struct {
 	PessoaUsecase    *PessoaUsecase
 	CurriculoUsecase *CurriculoUsecase
 }
 
 func NewPessoaCurriculoUsecase(
 	pessoareUsecase *PessoaUsecase,
-	curriculoUsecase *CurriculoUsecase) PessoaCurriculoUsecasse {
-	return PessoaCurriculoUsecasse{
+	curriculoUsecase *CurriculoUsecase) PessoaCurriculoUsecase {
+	return PessoaCurriculoUsecase{
 		PessoaUsecase:    pessoareUsecase,
 		CurriculoUsecase: curriculoUsecase,
 	}
 }
 
-func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.PessoaCurriculo) error {
+func (cu *PessoaCurriculoUsecase) CreateCurriculo(pessoaCurriculo *model.PessoaCurriculo) error {
 
 	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(pessoaCurriculo.Pessoa.IdLattes)
 
@@ -34,9 +34,9 @@ func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.Pessoa
 		return err
 	}
 
-	for _, value := range *pessoaCurriculo.Curriculo.Producoes {
+	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
-		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(&value, pessoaCurriculo.Curriculo)
+		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(value, pessoaCurriculo.Curriculo)
 
 		if err != nil {
 			return err
@@ -51,7 +51,7 @@ func (cu *PessoaCurriculoUsecasse) CreateCurriculo(pessoaCurriculo *model.Pessoa
 	return nil
 }
 
-func (cu *PessoaCurriculoUsecasse) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
+func (cu *PessoaCurriculoUsecase) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
 
 	var err error
 
@@ -67,13 +67,13 @@ func (cu *PessoaCurriculoUsecasse) DeletePessoa(pessoaCurriculo *model.PessoaCur
 		return err
 	}
 
-	for _, value := range *pessoaCurriculo.Curriculo.Producoes {
-		err = cu.CurriculoUsecase.CurriculoRepository.UnlinkProducaoCurriculo(pessoaCurriculo.Curriculo, &value)
+	for _, value := range pessoaCurriculo.Curriculo.Producoes {
+		err = cu.CurriculoUsecase.CurriculoRepository.UnlinkProducaoCurriculo(pessoaCurriculo.Curriculo, value)
 		if err != nil {
 			return err
 		}
 
-		err = cu.CurriculoUsecase.DeleteProducao(value)
+		err = cu.CurriculoUsecase.DeleteProducao(*value)
 		if err != nil {
 			return err
 		}

@@ -18,7 +18,7 @@ func NewCurriculoUseCase(curriculorepo *repository.CurriculoRepository, producao
 	}
 }
 
-func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
+func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
 	return cu.CurriculoRepository.GetCurriculos()
 }
 
@@ -41,13 +41,13 @@ func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int) (*model.Curriculo, er
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 
-	for _, values := range *curriculo.Producoes {
+	for _, values := range curriculo.Producoes {
 
-		_, err := cu.ProducaoRepository.GetProducaoByHash(&values)
+		_, err := cu.ProducaoRepository.GetProducaoByHash(values)
 
 		if err == sql.ErrNoRows {
 
-			cu.ProducaoRepository.CreateProducao(&values, curriculo)
+			cu.ProducaoRepository.CreateProducao(values, curriculo)
 
 		}
 
