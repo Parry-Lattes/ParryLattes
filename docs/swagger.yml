@@ -1,0 +1,117 @@
+openapi: '3.0.3'
+info:
+  title: Parry Lattes API
+  description: 'API backend utilizada pela aplicação Parry Lattes.'
+  version: '0.1'
+servers:
+  - url: https://localhost:1323
+components:
+  parameters:
+    IdLattes:
+      in: path
+      name: "idLattes"
+      required: true
+      schema:
+        type: string
+        example: '76843029134'
+      description: 'ID Lattes da pessoa na qual o currículo está ou será associado.'
+  schemas:
+    $ref: 'models.yml#/models'
+
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: OK
+  
+  /pessoas:
+    get:
+      summary: 'Pegar todas as pessoas.'
+      parameters: []
+      responses:
+        '200':
+          description: OK
+
+
+    post:
+      summary: 'Registrar nova pessoa.'
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pessoa'
+            example:
+              nome: "João Emanuel Oliveira Franco"
+              id_lattes: "6479351238230"
+              abreviaturas:
+                - "EMANUEL, Joao"
+                - "FRANCO, Joao E. O."
+              nacionalidade: 'Brasil'
+        required: true
+      responses:
+        '204':
+          description: 'Pessoa foi registrada no banco de dados.'
+        '400':
+          description: 'O json foi enviado de forma incorreta.'
+        '500':
+          description: 'Houve um erro ao registrar a pessoa no banco de dados.'  
+
+  /pessoas/{idLattes}:
+    summary: 'Obter informações de pessoa específica.'
+    parameters:
+      - $ref: '#/components/parameters/IdLattes'
+
+    get:
+      responses:
+        '200':
+          description: OK
+
+    put:
+      summary: 'Atualizar '
+      parameters: []
+      responses:
+        '200':
+          description: OK
+
+  /curriculos:
+    get:
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: OK
+
+  /curriculos/{idLattes}:
+    parameters:
+      - $ref: '#/components/parameters/IdLattes'
+
+    get:
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: OK
+    
+    post:
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          description: OK
+    
+    put:
+      description: ''
+      parameters: []
+      # requestBody:
+      #   required: true
+      #   content:
+      #     application/json:
+        
+      responses:
+        '200':
+          description: OK
+      
+    
