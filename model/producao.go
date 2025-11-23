@@ -8,5 +8,5 @@ type Producao struct {
 	TipoId           int64     `json:"tipo_id"`
 	TipoS            string    `json:"tipo_s"`
 	Hash             int64     `json:"hash"`
-	Coautores        []*Coautor `json:"coautores"`
+	Coautores        []*Abreviatura `json:"coautores"`
 }

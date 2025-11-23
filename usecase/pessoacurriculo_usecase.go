@@ -51,34 +51,62 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(pessoaCurriculo *model.PessoaC
 	return nil
 }
 
-func (cu *PessoaCurriculoUsecase) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
+func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(idLattes int) (*model.Curriculo, error) {
 
-	var err error
+	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
+	
+	if err != nil {
+		return nil, err
+	}
 
-	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(pessoaCurriculo.Pessoa.IdLattes)
+	curriculo, err := cu.CurriculoUsecase.GetCurriculoById(pessoa.IdPessoa)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(pessoaCurriculo.Curriculo.IdPessoa)
+	curriculo.Producoes, err = cu.CurriculoUsecase.ProducaoRepository.GetProducaoByIdLattes(curriculo)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, value := range pessoaCurriculo.Curriculo.Producoes {
-		err = cu.CurriculoUsecase.CurriculoRepository.UnlinkProducaoCurriculo(pessoaCurriculo.Curriculo, value)
-		if err != nil {
-			return err
-		}
+	for _, value := range curriculo.Producoes {
 
-		err = cu.CurriculoUsecase.DeleteProducao(*value)
-		if err != nil {
-			return err
-		}
+		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByIdProducao(value.IdProducao)
 	}
 
-	return nil
-
+	return curriculo, nil
 }
+
+// func (cu *PessoaCurriculoUsecase) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
+//
+// 	var err error
+//
+// 	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(pessoaCurriculo.Pessoa.IdLattes)
+//
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(pessoaCurriculo.Curriculo.IdPessoa)
+//
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
+// 		err = cu.CurriculoUsecase.CurriculoRepository.UnlinkProducaoCurriculo(pessoaCurriculo.Curriculo, value)
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		err = cu.CurriculoUsecase.DeleteProducao(*value)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+//
+// 	return nil
+//
+// }

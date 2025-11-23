@@ -49,7 +49,9 @@ func (cr *CurriculoRepository) GetCurriculos() ([]*model.Curriculo, error) {
 	return curriculoList, nil
 }
 
-func (cr *CurriculoRepository) GetCurriculoById(idPessoa int) (*model.Curriculo, error) {
+func (cr *CurriculoRepository) GetCurriculoById(idPessoa int64) (*model.Curriculo, error) {
+
+	fmt.Println(idPessoa)
 
 	query, err := cr.Connection.Prepare("SELECT c.idCurriculo,c.idPessoa, c.UltimaAtualizacao " +
 		"FROM Curriculo c " +

@@ -75,8 +75,7 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(curriculo *model.Curriculo) 
 	}
 
 	var producaoList []*model.Producao
-	var producaoObj *model.Producao =  &model.Producao{}
- 
+	var producaoObj *model.Producao = &model.Producao{}
 
 	for rows.Next() {
 
@@ -129,17 +128,6 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 	if err != nil {
 		fmt.Println("Errro:", err)
 		return nil, err
-	}
-
-	for _, value := range producao.Coautores {
-
-		value.IdProducao = producao.IdProducao
-		*value, err = pr.CreateCoautor(value)
-
-		if err != nil {
-			fmt.Println("Erro ao cadastrar abreviatura", err)
-			return nil, err
-		}
 	}
 
 	producao.IdProducao = id
@@ -214,33 +202,39 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 	return producao, nil
 }
 
-func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
-	query := "DELETE FROM Producao WHERE Hash = ?"
+//
+// func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
+// 	query := "DELETE FROM Producao WHERE Hash = ?"
+//
+// 	result, err := pr.Connection.Exec(query, hash)
+// 	if err != nil {
+// 		fmt.Println("erro ao deletar producao")
+// 		return err
+// 	}
+//
+// 	rowsAffected, err := result.RowsAffected()
+// 	if err != nil {
+// 		fmt.Println("erro ao coletar linhas afetadas")
+// 		return err
+// 	}
+//
+// 	if rowsAffected == 0 {
+// 		fmt.Println("producao não encontrada:")
+// 		return err
+// 	}
+//
+// 	return nil
+//
+// }
 
-	result, err := pr.Connection.Exec(query, hash)
-	if err != nil {
-		fmt.Println("erro ao deletar producao")
-		return err
-	}
+func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Abreviatura, error) {
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		fmt.Println("erro ao coletar linhas afetadas")
-		return err
-	}
-
-	if rowsAffected == 0 {
-		fmt.Println("producao não encontrada:")
-		return err
-	}
-
-	return nil
-
-}
-
-func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Coautor, error) {
-
-	query := "SELECT idCoautor,idProducao,Coautor FROM Coautor WHERE idProducao = ?"
+	query := "SELECT a.idAbreviaturaPessoa,a.idPessoa,a.Abreviatura WHERE from Abreviatura a " +
+		"INNER JOIN Producao p " +
+		"ON p.idProducao = a.idProducao " +
+		"INNER JOIN Coautor c " +
+		"ON c.idAbreviatura = a.idAbreviatura " +
+		"WHERE p.idProducao = ?"
 
 	rows, err := pr.Connection.Query(query, IdProducao)
 
@@ -251,14 +245,14 @@ func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Coau
 
 	defer rows.Close()
 
-	var coautorObj *model.Coautor = &model.Coautor{}
-	var coautorList []*model.Coautor 
+	var coautorObj *model.Abreviatura = &model.Abreviatura{}
+	var coautorList []*model.Abreviatura
 
 	for rows.Next() {
 		err = rows.Scan(
-			&coautorObj.IdCoautor,
-			&coautorObj.IdProducao,
-			&coautorObj.Coautor,
+			&coautorObj.IdAbreviatura,
+			&coautorObj.IdPessoa,
+			&coautorObj.Abreviatura,
 		)
 
 		if err != nil {
@@ -275,37 +269,37 @@ func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Coau
 	return coautorList, nil
 }
 
-func (pr *ProducaoRepository) CreateCoautor(coautor *model.Coautor) (model.Coautor, error) {
-	
-	query, err := pr.Connection.Prepare("INSERT INTO Coautor (idProducao,Coautor)" +
+func (pr *ProducaoRepository) CreateAbreviatura(abreviatura *model.Abreviatura) (*model.Abreviatura, error) {
+
+	query, err := pr.Connection.Prepare("INSERT INTO Abreviatura (idPessoa,Abreviatura)" +
 		"VALUES(?,?)")
 
 	if err != nil {
 		fmt.Println("Erro ao Preparar query:", err)
-		return model.Coautor{}, err
+		return nil, err
 	}
 
 	defer query.Close()
 
 	result, err := query.Exec(
-		coautor.IdProducao,
-		coautor.Coautor,
+		abreviatura.IdPessoa,
+		abreviatura.IdAbreviatura,
 	)
 
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
-		return model.Coautor{}, err
+		return nil, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
 		fmt.Println("Erro ao obter último ID:", err)
-		return model.Coautor{}, err
+		return nil, err
 	}
 
-	coautor.IdCoautor = id
+	abreviatura.IdAbreviatura = id
 
-	return *coautor, nil
+	return abreviatura, nil
 
 }
 

@@ -19,7 +19,7 @@ func NewPessoaRepository(connection *sql.DB) PessoaRepository {
 
 func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 
-	querry := "SELECT idPessoa,Nome,idLattes,Nacionalidade " + 
+	querry := "SELECT idPessoa,Nome,idLattes,Nacionalidade " +
 		"FROM Pessoa"
 	rows, err := pr.Connection.Query(querry)
 
@@ -79,8 +79,8 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, e
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
 		return nil, err
-	} 
-	
+	}
+
 	id, err := result.LastInsertId()
 
 	if err != nil {
@@ -96,7 +96,7 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, e
 func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, error) {
 
 	query, err := pr.Connection.Prepare("SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?")
-
+ 
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -105,7 +105,7 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 	defer query.Close()
 
 	var pessoa model.Pessoa
-
+	
 	err = query.QueryRow(IdLattes).Scan(
 		&pessoa.IdPessoa,
 		&pessoa.Nome,
@@ -121,12 +121,7 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 		return nil, err
 	}
 
-	pessoa.Abreviaturas, err = pr.GetAbreviaturasById(pessoa.IdPessoa)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
+	//pessoa.Abreviaturas, err = pr.GetAbreviaturasById(pessoa.IdPessoa
 
 	return &pessoa, nil
 }
@@ -187,73 +182,4 @@ func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
 
 }
 
-func (pr *PessoaRepository) GetAbreviaturasById(IdPessoa int64) ([]*model.Abreviatura, error) {
 
-	query := "SELECT idAbreviaturaPessoa, idPessoa, abreviatura FROM Abreviatura WHERE idPessoa = ?"
-
-	rows, err := pr.Connection.Query(query, IdPessoa)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var abreviaturaList []*model.Abreviatura
-	var abreviaturaObj *model.Abreviatura = &model.Abreviatura{}
-
-	for rows.Next() {
-		err = rows.Scan(
-			&abreviaturaObj.IdAbreviatura,
-			&abreviaturaObj.IdPessoa,
-			&abreviaturaObj.Abreviatura,
-		)
-
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return nil, err
-			}
-			fmt.Println(err)
-			return nil, err
-		}
-
-		abreviaturaList = append(abreviaturaList, abreviaturaObj)
-	}
-
-	return abreviaturaList, nil
-}
-
-func (pr *PessoaRepository) CreateAbreviatura(abreviatura *model.Abreviatura) error {
-
-	query, err := pr.Connection.Prepare("INSERT INTO Abreviatura (idPessoa,Abreviatura) VALUES (?,?)")
-
-	if err != nil {
-		fmt.Println("Erro ao Preparar query:", err)
-		return err
-	}
-
-	defer query.Close()
-
-	result, err := query.Exec(
-		abreviatura.IdPessoa,
-		abreviatura.Abreviatura,
-	)
-
-	if err != nil {
-		fmt.Println("Erro ao executar query:", err)
-		return err
-	}
-
-	id, err := result.LastInsertId()
-
-	if err != nil {
-		fmt.Println("Errro:", err)
-		return err
-	}
-
-	abreviatura.IdAbreviatura = id
-
-	return nil
-
-}
