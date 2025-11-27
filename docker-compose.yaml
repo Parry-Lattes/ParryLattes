@@ -2,6 +2,7 @@ services:
   backend:
     image: docker.io/cosmtrek/air:v1.63.0
     working_dir: /backend
+    container_name: ParryBackend
     ports:
       - "1323:1323"
     volumes:
@@ -24,6 +25,7 @@ services:
   
   swagger:
     image: docker.swagger.io/swaggerapi/swagger-ui:latest
+    container_name: ParrySwagger
     volumes:
       - ./docs:/docs
     ports:
