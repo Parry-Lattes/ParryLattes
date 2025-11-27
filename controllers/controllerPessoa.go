@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"parry_end/model"
@@ -58,7 +59,7 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	if pessoa == nil {
@@ -94,7 +95,7 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 
 func (c *ControllerPessoa) UpdatePessoa(e echo.Context) error {
 
-	var pessoa model.Pessoa
+	var pessoa *model.Pessoa
 	err := e.Bind(&pessoa)
 
 	if err != nil {
@@ -102,12 +103,25 @@ func (c *ControllerPessoa) UpdatePessoa(e echo.Context) error {
 		e.JSON(http.StatusBadRequest, err)
 	}
 
-	err = c.PessoaUsecase.UpdatePessoa(&pessoa)
+	pessoa, err = c.PessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Println(err)
+			return e.JSON(http.StatusNotFound, err)
+		}
+		
+		fmt.Println(err)
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+
+	err = c.PessoaUsecase.UpdatePessoa(pessoa)
 
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
 	}
+
 
 	return e.JSON(http.StatusOK, nil)
 }

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"parry_end/model"
 	"parry_end/repository"
 )
@@ -54,18 +53,15 @@ func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
 }
 
 func (pu *PessoaUsecase) GetPessoaByIdLattes(idLattes int) (*model.Pessoa, error) {
- 
-	pessoa, err := pu.pessoaRepository.GetPessoaByIdLattes(idLattes)
 
-	fmt.Println("Sexo1")
+	pessoa, err := pu.pessoaRepository.GetPessoaByIdLattes(idLattes)
 
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("Sexo2")
 	pessoa.Abreviaturas, err = pu.abreviaturaRepository.GetAbreviaturasById(pessoa.IdPessoa)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +77,12 @@ func (pu *PessoaUsecase) UpdatePessoa(pessoa *model.Pessoa) error {
 		return err
 	}
 
+	for _, values := range pessoa.Abreviaturas {
+		err = pu.abreviaturaRepository.UpdateAbreviaturas(values)
+		
+		if err != nil{
+			return err
+		}
+	}
 	return nil
 }
-
-// func (pu)

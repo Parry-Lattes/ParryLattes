@@ -14,9 +14,32 @@ type ControllerPessoaCurriculo struct {
 	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
 }
 
+type TipoDeProducao int
+
+const (
+	Bibliografica TipoDeProducao = iota
+	Patente
+	Tecnica
+	Outro
+)
+
 func NewControllerPessoaCurriculo(usecase *usecase.PessoaCurriculoUsecase) ControllerPessoaCurriculo {
 	return ControllerPessoaCurriculo{
 		PessoaCurriculoUsecase: usecase,
+	}
+}
+
+
+func (c ControllerPessoaCurriculo)typeConvert(tipo string) TipoDeProducao {
+	switch tipo {
+	case "Bibliográfica":
+		return Bibliografica
+	case "Patente":
+		return Patente
+	case "Técica":
+		return Tecnica
+	default:
+		return Outro
 	}
 }
 
@@ -84,10 +107,14 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 	
 
 	err = e.Bind(&pessoaCurriculo.Curriculo)
-	fmt.Println(pessoaCurriculo)
+
+// conversão de tipo ficará aqui
+
+
+
 	pessoaCurriculo.Pessoa = &model.Pessoa{}
 	pessoaCurriculo.Pessoa.IdLattes = idLattes
-	fmt.Println("Sexo2")
+
 
 	if err != nil {
 		fmt.Println(err)

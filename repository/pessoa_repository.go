@@ -46,13 +46,6 @@ func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 			return nil, err
 		}
 
-		// pessoaObj.Abreviaturas, err = pr.GetAbreviaturasById(&pessoaObj.IdPessoa)
-		//
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	return nil, err
-		// }
-
 		pessoaList = append(pessoaList, pessoaObj)
 	}
 
@@ -96,7 +89,7 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, e
 func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, error) {
 
 	query, err := pr.Connection.Prepare("SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?")
- 
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -105,7 +98,7 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 	defer query.Close()
 
 	var pessoa model.Pessoa
-	
+
 	err = query.QueryRow(IdLattes).Scan(
 		&pessoa.IdPessoa,
 		&pessoa.Nome,
@@ -120,8 +113,6 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 		fmt.Println(err)
 		return nil, err
 	}
-
-	//pessoa.Abreviaturas, err = pr.GetAbreviaturasById(pessoa.IdPessoa
 
 	return &pessoa, nil
 }
@@ -181,5 +172,3 @@ func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
 	return nil
 
 }
-
-

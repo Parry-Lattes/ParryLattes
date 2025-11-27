@@ -204,8 +204,7 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 
 //
 // func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
-// 	query := "DELETE FROM Producao WHERE Hash = ?"
-//
+// 	query := "DELETE FROM Producao WHERE Hash = ?//
 // 	result, err := pr.Connection.Exec(query, hash)
 // 	if err != nil {
 // 		fmt.Println("erro ao deletar producao")

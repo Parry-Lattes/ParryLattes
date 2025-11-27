@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"parry_end/model"
 )
 
@@ -12,37 +11,45 @@ type PessoaCurriculoUsecase struct {
 
 func NewPessoaCurriculoUsecase(
 	pessoareUsecase *PessoaUsecase,
-	curriculoUsecase *CurriculoUsecase) PessoaCurriculoUsecase {
+	curriculoUsecase *CurriculoUsecase,
+) PessoaCurriculoUsecase {
 	return PessoaCurriculoUsecase{
 		PessoaUsecase:    pessoareUsecase,
 		CurriculoUsecase: curriculoUsecase,
 	}
 }
 
-func (cu *PessoaCurriculoUsecase) CreateCurriculo(pessoaCurriculo *model.PessoaCurriculo) error {
-
-	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(pessoaCurriculo.Pessoa.IdLattes)
-
+func (cu *PessoaCurriculoUsecase) CreateCurriculo(
+	pessoaCurriculo *model.PessoaCurriculo,
+) error {
+	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(
+		pessoaCurriculo.Pessoa.IdLattes,
+	)
 	if err != nil {
-		fmt.Println("Erro 1")
 		return err
 	}
 
-	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(pessoaCurriculo.Curriculo, pessoa)
-
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.CurriculoRepository.CreateCurriculo(
+		pessoaCurriculo.Curriculo,
+		pessoa,
+	)
 	if err != nil {
 		return err
 	}
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
-		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(value, pessoaCurriculo.Curriculo)
-
+		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(
+			value,
+			pessoaCurriculo.Curriculo,
+		)
 		if err != nil {
 			return err
 		}
-		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(pessoaCurriculo.Curriculo, Producao)
-
+		err = cu.CurriculoUsecase.CurriculoRepository.LinkCurriculoProducao(
+			pessoaCurriculo.Curriculo,
+			Producao,
+		)
 		if err != nil {
 			return err
 		}
@@ -51,29 +58,30 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(pessoaCurriculo *model.PessoaC
 	return nil
 }
 
-func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(idLattes int) (*model.Curriculo, error) {
-
+func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
+	idLattes int,
+) (*model.Curriculo, error) {
 	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
-	
 	if err != nil {
 		return nil, err
 	}
 
 	curriculo, err := cu.CurriculoUsecase.GetCurriculoById(pessoa.IdPessoa)
-
 	if err != nil {
 		return nil, err
 	}
 
-	curriculo.Producoes, err = cu.CurriculoUsecase.ProducaoRepository.GetProducaoByIdLattes(curriculo)
-
+	curriculo.Producoes, err = cu.CurriculoUsecase.ProducaoRepository.GetProducaoByIdLattes(
+		curriculo,
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, value := range curriculo.Producoes {
-
-		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByIdProducao(value.IdProducao)
+		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByIdProducao(
+			value.IdProducao,
+		)
 	}
 
 	return curriculo, nil
