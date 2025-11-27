@@ -1,6 +1,6 @@
 services:
   backend:
-    image: cosmtrek/air:v1.63.0
+    image: docker.io/cosmtrek/air:v1.63.0
     working_dir: /backend
     ports:
       - "1323:1323"
@@ -10,7 +10,7 @@ services:
       - database
 
   database:
-    image: mysql:8.0
+    image: docker.io/mysql:8.0
     restart: "on-failure"
     container_name: ParryDB
     volumes:
@@ -21,3 +21,12 @@ services:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=mydb
       #- MYSQL_TCP_PORT=7788
+  
+  swagger:
+    image: docker.swagger.io/swaggerapi/swagger-ui:latest
+    volumes:
+      - ./docs:/docs
+    ports:
+      - "1024:8080"
+    environment:
+      - SWAGGER_JSON=/docs/swagger.yml
