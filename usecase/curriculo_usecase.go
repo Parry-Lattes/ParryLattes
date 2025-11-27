@@ -7,22 +7,25 @@ import (
 )
 
 type CurriculoUsecase struct {
-	CurriculoRepository *repository.CurriculoRepository
-	ProducaoRepository  *repository.ProducaoRepository
+	CurriculoRepository   *repository.CurriculoRepository
+	ProducaoRepository    *repository.ProducaoRepository
+	AbreviaturaRepository *repository.AbreviaturaRepository
 }
 
-func NewCurriculoUseCase(curriculorepo *repository.CurriculoRepository, producaorepo *repository.ProducaoRepository) CurriculoUsecase {
+func NewCurriculoUseCase(curriculorepo *repository.CurriculoRepository, producaorepo *repository.ProducaoRepository, abreviaturarepo *repository.AbreviaturaRepository) CurriculoUsecase {
 	return CurriculoUsecase{
-		CurriculoRepository: curriculorepo,
-		ProducaoRepository:  producaorepo,
+		CurriculoRepository:   curriculorepo,
+		ProducaoRepository:    producaorepo,
+		AbreviaturaRepository: abreviaturarepo,
 	}
-}
+} 
 
-func (cu *CurriculoUsecase) GetCurriculos() (*[]model.Curriculo, error) {
+func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
 	return cu.CurriculoRepository.GetCurriculos()
+
 }
 
-func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int) (*model.Curriculo, error) {
+func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int64) (*model.Curriculo, error) {
 
 	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idPessoa)
 
@@ -36,18 +39,23 @@ func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int) (*model.Curriculo, er
 		return nil, err
 	}
 
+	for _, value := range curriculo.Producoes {
+		
+		value.Coautores,err = cu.AbreviaturaRepository.GetAbreviaturaByIdProducao(value.IdProducao)
+	}
+
 	return curriculo, nil
 }
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 
-	for _, values := range *curriculo.Producoes {
+	for _, values := range curriculo.Producoes {
 
-		_, err := cu.ProducaoRepository.GetProducaoByHash(&values)
+		_, err := cu.ProducaoRepository.GetProducaoByHash(values)
 
 		if err == sql.ErrNoRows {
 
-			cu.ProducaoRepository.CreateProducao(&values, curriculo)
+			cu.ProducaoRepository.CreateProducao(values, curriculo)
 
 		}
 
@@ -61,12 +69,12 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 	return nil
 }
 
-func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
-	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+// func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
+// 	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
+//
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }

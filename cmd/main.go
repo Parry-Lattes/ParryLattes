@@ -23,9 +23,10 @@ func main() {
 	PessoaRepository := repository.NewPessoaRepository(dbConnection)
 	CurriculoRepository := repository.NewCurriculoRepository(dbConnection)
 	ProducaoRepository := repository.NewProducaoRepository(dbConnection)
+	AbreviaturaRepository := repository.NewAbreviaturaRepository(dbConnection)
 
-	curriculoUsecase := usecase.NewCurriculoUseCase(&CurriculoRepository, &ProducaoRepository)
-	pessoaUseCase := usecase.NewPessoaUseCase(&PessoaRepository)
+	curriculoUsecase := usecase.NewCurriculoUseCase(&CurriculoRepository, &ProducaoRepository, &AbreviaturaRepository)
+	pessoaUseCase := usecase.NewPessoaUseCase(&PessoaRepository, &AbreviaturaRepository)
 	pessoaCurriculoUsecase := usecase.NewPessoaCurriculoUsecase(&pessoaUseCase, &curriculoUsecase)
 
 	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
@@ -39,12 +40,12 @@ func main() {
 	e.GET("/pessoa", controllerPessoa.GetPessoas)
 	e.GET("/pessoa/:idLattes", controllerPessoa.GetPessoaByIdLattes)
 	e.POST("/pessoa", controllerPessoa.CreatePessoa)
-	e.POST("/pessoa/update", controllerPessoa.UpdatePessoa) 
+	//e.PUT("/pessoa", controllerPessoa.UpdatePessoa) 
 
-	e.GET("/curriculo/:idLattes", controllerCurriculo.GetCurriculoById)
+	e.GET("/pessoa/:idLattes/curriculo", controllerPessoaCurriculo.GetCurriculoById)
 	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
-	e.POST("/curriculo", controllerPessoaCurriculo.CreateCurriculo)
-	e.POST("/curriculo/update", controllerCurriculo.UpdateCurriculo)
+	e.POST("/pessoa/:idLattes/curriculo", controllerPessoaCurriculo.CreateCurriculo)
+	//e.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
