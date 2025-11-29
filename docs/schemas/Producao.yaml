@@ -1,0 +1,22 @@
+Producao:
+  type: object
+  properties:
+    hash:
+      type: string
+    autor:
+      type: string
+    coautores:
+      type: array
+      items:
+        type: string
+    titulo:
+      type: string
+    ano_de_publicacao:
+      type: string
+    tipo_producao:
+      type: string
+      enum:
+        - "Artigo"
+        - "Patente"
+        - "Bibliográfico"
+        - "Técnico"

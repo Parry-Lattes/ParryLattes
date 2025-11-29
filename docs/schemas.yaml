@@ -1,0 +1,6 @@
+Pessoa:
+  $ref: 'schemas/Pessoa.yml'
+Curriculo:
+  $ref: 'schemas/Curriculo.yml'
+Producao:
+  $ref: 'schemas/Producao.yml'

@@ -16,7 +16,7 @@ components:
         example: '76843029134'
       description: 'ID Lattes da pessoa na qual o currículo está ou será associado.'
   schemas:
-    $ref: 'models.yml#/models'
+    $ref: 'schemas.yaml'
 
 paths:
   /:
@@ -28,10 +28,25 @@ paths:
   /pessoas:
     get:
       summary: 'Pegar todas as pessoas.'
-      parameters: []
+
       responses:
         '200':
-          description: OK
+          description: 'A API retornou com sucesso a lista de pessoas.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pessoa'
+              example:
+                - nome: Maria Eduarda Aires Angelo
+                  id_lattes: '891674197'
+                  abreviaturas:
+                    - ÂNGELO, Maria E. A.
+                    - AIRES, Maria E.
+                  
+        '500':
+          description: 'Houve um erro interno, tente novamente mais tarde.'
 
 
     post:
