@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"database/sql"
+
 	"parry_end/model"
 	"parry_end/repository"
 )
@@ -12,56 +13,71 @@ type CurriculoUsecase struct {
 	AbreviaturaRepository *repository.AbreviaturaRepository
 }
 
-func NewCurriculoUseCase(curriculorepo *repository.CurriculoRepository, producaorepo *repository.ProducaoRepository, abreviaturarepo *repository.AbreviaturaRepository) CurriculoUsecase {
+func NewCurriculoUseCase(
+	curriculorepo *repository.CurriculoRepository,
+	producaorepo *repository.ProducaoRepository,
+	abreviaturarepo *repository.AbreviaturaRepository,
+) CurriculoUsecase {
 	return CurriculoUsecase{
 		CurriculoRepository:   curriculorepo,
 		ProducaoRepository:    producaorepo,
 		AbreviaturaRepository: abreviaturarepo,
 	}
-} 
+}
 
 func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
 	return cu.CurriculoRepository.GetCurriculos()
-
 }
 
-func (cu *CurriculoUsecase) GetCurriculoById(idPessoa int64) (*model.Curriculo, error) {
-
+func (cu *CurriculoUsecase) GetCurriculoById(
+	idPessoa int64,
+) (*model.Curriculo, error) {
 	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idPessoa)
-
 	if err != nil {
 		return nil, err
 	}
 
-	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(curriculo)
-
+	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(
+		curriculo,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, value := range curriculo.Producoes {
-		
-		value.Coautores,err = cu.AbreviaturaRepository.GetAbreviaturaByIdProducao(value.IdProducao)
+	for _, producao := range curriculo.Producoes {
+		producao.Coautores, err = cu.AbreviaturaRepository.GetCoautoresByIdProducao(
+			producao.IdProducao,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, coautor := range producao.Coautores {
+			coautor.Abreviatura, err = cu.AbreviaturaRepository.GetAbreviaturaByCoautor(
+				coautor,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+		}
+
 	}
 
 	return curriculo, nil
 }
 
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
-
 	for _, values := range curriculo.Producoes {
 
 		_, err := cu.ProducaoRepository.GetProducaoByHash(values)
 
 		if err == sql.ErrNoRows {
-
 			cu.ProducaoRepository.CreateProducao(values, curriculo)
-
 		}
 
 	}
 	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
-
 	if err != nil {
 		return err
 	}

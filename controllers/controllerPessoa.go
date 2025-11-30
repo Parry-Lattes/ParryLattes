@@ -4,27 +4,28 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"parry_end/model"
-	"parry_end/usecase"
 	"strconv"
 
 	"github.com/labstack/echo"
+
+	"parry_end/model"
+	"parry_end/usecase"
 )
 
 type ControllerPessoa struct {
 	PessoaUsecase *usecase.PessoaUsecase
 }
 
-func NewControllerPessoa(usecase_pessoa *usecase.PessoaUsecase) ControllerPessoa {
+func NewControllerPessoa(
+	usecase_pessoa *usecase.PessoaUsecase,
+) ControllerPessoa {
 	return ControllerPessoa{
 		PessoaUsecase: usecase_pessoa,
 	}
 }
 
 func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
-
 	pessoas, err := c.PessoaUsecase.GetPessoas()
-
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
@@ -34,7 +35,6 @@ func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
 }
 
 func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
-
 	idLatttes := e.Param("idLattes")
 
 	if idLatttes == "" {
@@ -47,7 +47,6 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 	}
 
 	idLattes, err := strconv.Atoi(idLatttes)
-
 	if err != nil {
 		response := model.Response{
 			Message: "IdLattes Must be a number",
@@ -56,7 +55,6 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 	}
 
 	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(idLattes)
-
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
@@ -73,55 +71,46 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 }
 
 func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
-
 	var pessoa model.Pessoa
 	err := e.Bind(&pessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusBadRequest, err)
 	}
 
 	err = c.PessoaUsecase.CreatePessoa(&pessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
 	}
 
 	return e.NoContent(http.StatusCreated)
-
 }
 
 func (c *ControllerPessoa) UpdatePessoa(e echo.Context) error {
-
 	var pessoa *model.Pessoa
 	err := e.Bind(&pessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusBadRequest, err)
 	}
 
 	pessoa, err = c.PessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			fmt.Println(err)
 			return e.JSON(http.StatusNotFound, err)
 		}
-		
+
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	err = c.PessoaUsecase.UpdatePessoa(pessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
 	}
-
 
 	return e.JSON(http.StatusOK, nil)
 }

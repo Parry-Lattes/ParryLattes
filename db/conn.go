@@ -7,11 +7,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-
 var db *sql.DB
 
 func ConnectDB() error {
-	//defer db.Close()
+	// defer db.Close()
 	cfg := mysql.NewConfig()
 	cfg.User = "root"
 	cfg.Passwd = "1234"

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"parry_end/model"
 )
 
@@ -33,9 +34,6 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		pessoaCurriculo.Curriculo,
 		pessoa,
 	)
-	if err != nil {
-		return err
-	}
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
@@ -52,6 +50,24 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		)
 		if err != nil {
 			return err
+		}
+
+		for _, coautor := range value.Coautores {
+			coautor.Abreviatura.IdPessoa = nil
+			coautor.IdProducao = value.IdProducao
+			fmt.Println(coautor.IdProducao)
+			coautor.Abreviatura, err = cu.PessoaUsecase.abreviaturaRepository.CreateAbreviatura(
+				coautor.Abreviatura,
+			)
+			if err != nil {
+				return err
+			}
+			coautor, err = cu.PessoaUsecase.abreviaturaRepository.CreateACoautor(
+				coautor,
+			)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -79,9 +95,22 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 	}
 
 	for _, value := range curriculo.Producoes {
-		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByIdProducao(
-			value.IdProducao,
+		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetCoautoresByIdProducao(
+			curriculo.IdCurriculo,
 		)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, coautor := range value.Coautores {
+			coautor.Abreviatura, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByCoautor(
+				coautor,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+		}
 	}
 
 	return curriculo, nil

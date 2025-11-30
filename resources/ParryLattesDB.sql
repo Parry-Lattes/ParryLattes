@@ -214,7 +214,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Abreviatura` (
   `idAbreviatura` INT NOT NULL AUTO_INCREMENT,
-  `idPessoa` INT,
+  `idPessoa` INT NULL,
   `Abreviatura` VARCHAR(45),
   PRIMARY KEY (`idAbreviatura`),
   UNIQUE INDEX `idAbreviatura_UNIQUE` (`idAbreviatura` ASC) VISIBLE,

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+
 	"parry_end/model"
 )
 
@@ -17,15 +18,14 @@ func NewProducaoRepository(connection *sql.DB) ProducaoRepository {
 		},
 	}
 }
-func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 
+func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 	query := "SELECT p.idProducao,p.Autor,p.Titulo,p.DataDePublicacao,tp.Tipo,p.Hash " +
 		"FROM Producao p " +
 		"INNER JOIN TipoDeProducao tp " +
 		"ON p.idTipo = tp.idTipoDeProducao"
 
 	rows, err := pr.Connection.Query(query)
-
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
 		return nil, err
@@ -43,7 +43,6 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 			&producaoObj.TipoS,
 			&producaoObj.Hash,
 		)
-
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +54,9 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 	return producaoList, nil
 }
 
-func (pr *ProducaoRepository) GetProducaoByIdLattes(curriculo *model.Curriculo) ([]*model.Producao, error) {
+func (pr *ProducaoRepository) GetProducaoByIdLattes(
+	curriculo *model.Curriculo,
+) ([]*model.Producao, error) {
 	query := "SELECT p.idProducao,p.Autor,p.Titulo,p.DataDePublicacao,tp.Tipo,p.Hash " +
 		"FROM Producao p " +
 		"INNER JOIN CurriculoProducao cp " +
@@ -68,7 +69,6 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(curriculo *model.Curriculo) 
 		"ORDER BY p.DataDePublicacao DESC"
 
 	rows, err := pr.Connection.Query(query, curriculo.IdPessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -100,15 +100,20 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(curriculo *model.Curriculo) 
 	return producaoList, nil
 }
 
-func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo *model.Curriculo) (*model.Producao, error) {
-
-	query, err := pr.Connection.Prepare("INSERT INTO Producao (Titulo, idTipo, DataDePublicacao, Autor, Hash) " +
-		"VALUES (?,?,?,?,?)")
-
+func (pr *ProducaoRepository) CreateProducao(
+	producao *model.Producao,
+	curriculo *model.Curriculo,
+) (*model.Producao, error) {
+	query, err := pr.Connection.Prepare(
+		"INSERT INTO Producao (Titulo, idTipo, DataDePublicacao, Autor, Hash) " +
+			"VALUES (?,?,?,?,?)",
+	)
 	if err != nil {
 		fmt.Println("Erro ao Preparar query:", err)
 		return nil, err
 	}
+
+	defer query.Close()
 
 	result, err := query.Exec(
 		producao.Titulo,
@@ -117,28 +122,29 @@ func (pr *ProducaoRepository) CreateProducao(producao *model.Producao, curriculo
 		producao.Autor,
 		producao.Hash,
 	)
-
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
 		return nil, err
 	}
 
 	id, err := result.LastInsertId()
-
 	if err != nil {
 		fmt.Println("Errro:", err)
 		return nil, err
 	}
 
 	producao.IdProducao = id
-	query.Close()
+
 	return producao, nil
 }
 
-func (pr *ProducaoRepository) GetProducaoTypeId(producao *model.Producao) (int, error) {
-	query, err := pr.Connection.Prepare("SELECT idTipoDeProducao FROM TipoDeProducao " +
-		"WHERE Tipo = ?")
-
+func (pr *ProducaoRepository) GetProducaoTypeId(
+	producao *model.Producao,
+) (int, error) {
+	query, err := pr.Connection.Prepare(
+		"SELECT idTipoDeProducao FROM TipoDeProducao " +
+			"WHERE Tipo = ?",
+	)
 	if err != nil {
 		fmt.Println(err)
 		return 0, nil
@@ -149,7 +155,6 @@ func (pr *ProducaoRepository) GetProducaoTypeId(producao *model.Producao) (int, 
 	err = query.QueryRow(producao.TipoId).Scan(
 		&idTipoDeProducao,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return 0, err
@@ -162,16 +167,16 @@ func (pr *ProducaoRepository) GetProducaoTypeId(producao *model.Producao) (int, 
 	query.Close()
 
 	return idTipoDeProducao, nil
-
 }
 
-func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*model.Producao, error) {
+func (pr *ProducaoRepository) GetProducaoByHash(
+	producao *model.Producao,
+) (*model.Producao, error) {
 	query := "SELECT p.idProducao,p.Autor,p.Titulo,p.DataDePublicacao,tp.Tipo,p.Hash " +
 		"FROM Producao p " +
 		"WHERE p.Hash = ?"
 
 	rows, err := pr.Connection.Query(query, producao.Hash)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -190,13 +195,6 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 		return nil, err
 	}
 
-	producao.Coautores, err = pr.GetCoautoresById(&producao.IdProducao)
-
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
 	rows.Close()
 
 	return producao, nil
@@ -204,7 +202,8 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 
 //
 // func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
-// 	query := "DELETE FROM Producao WHERE Hash = ?//
+// 	query := "DELETE FROM Producao WHERE Hash = ?"
+//
 // 	result, err := pr.Connection.Exec(query, hash)
 // 	if err != nil {
 // 		fmt.Println("erro ao deletar producao")
@@ -226,8 +225,9 @@ func (pr *ProducaoRepository) GetProducaoByHash(producao *model.Producao) (*mode
 //
 // }
 
-func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Abreviatura, error) {
-
+func (pr *ProducaoRepository) GetCoautoresById(
+	IdProducao *int64,
+) ([]*model.Abreviatura, error) {
 	query := "SELECT a.idAbreviaturaPessoa,a.idPessoa,a.Abreviatura WHERE from Abreviatura a " +
 		"INNER JOIN Producao p " +
 		"ON p.idProducao = a.idProducao " +
@@ -236,7 +236,6 @@ func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Abre
 		"WHERE p.idProducao = ?"
 
 	rows, err := pr.Connection.Query(query, IdProducao)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -253,7 +252,6 @@ func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Abre
 			&coautorObj.IdPessoa,
 			&coautorObj.Abreviatura,
 		)
-
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, err
@@ -268,11 +266,13 @@ func (pr *ProducaoRepository) GetCoautoresById(IdProducao *int64) ([]*model.Abre
 	return coautorList, nil
 }
 
-func (pr *ProducaoRepository) CreateAbreviatura(abreviatura *model.Abreviatura) (*model.Abreviatura, error) {
-
-	query, err := pr.Connection.Prepare("INSERT INTO Abreviatura (idPessoa,Abreviatura)" +
-		"VALUES(?,?)")
-
+func (pr *ProducaoRepository) CreateAbreviatura(
+	abreviatura *model.Abreviatura,
+) (*model.Abreviatura, error) {
+	query, err := pr.Connection.Prepare(
+		"INSERT INTO Abreviatura (idPessoa,Abreviatura)" +
+			"VALUES(?,?)",
+	)
 	if err != nil {
 		fmt.Println("Erro ao Preparar query:", err)
 		return nil, err
@@ -284,7 +284,6 @@ func (pr *ProducaoRepository) CreateAbreviatura(abreviatura *model.Abreviatura) 
 		abreviatura.IdPessoa,
 		abreviatura.IdAbreviatura,
 	)
-
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
 		return nil, err
@@ -299,7 +298,6 @@ func (pr *ProducaoRepository) CreateAbreviatura(abreviatura *model.Abreviatura) 
 	abreviatura.IdAbreviatura = id
 
 	return abreviatura, nil
-
 }
 
 // func (pr *ProducaoRepository) CheckProducaoHash(hash int64)([]int64, error){
