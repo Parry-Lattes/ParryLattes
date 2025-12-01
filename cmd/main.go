@@ -30,6 +30,7 @@ func main() {
 		&ProducaoRepository,
 		&AbreviaturaRepository,
 	)
+
 	pessoaUseCase := usecase.NewPessoaUseCase(
 		&PessoaRepository,
 		&AbreviaturaRepository,

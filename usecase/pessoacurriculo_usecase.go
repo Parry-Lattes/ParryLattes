@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"fmt"
+
 	"parry_end/model"
 )
 
@@ -37,6 +38,8 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
+		value.TipoId = cu.CurriculoUsecase.identifyTipo(value)
+
 		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(
 			value,
 			pessoaCurriculo.Curriculo,
@@ -53,8 +56,10 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		}
 
 		for _, coautor := range value.Coautores {
+
 			coautor.Abreviatura.IdPessoa = nil
 			coautor.IdProducao = value.IdProducao
+
 			fmt.Println(coautor.IdProducao)
 			coautor.Abreviatura, err = cu.PessoaUsecase.abreviaturaRepository.CreateAbreviatura(
 				coautor.Abreviatura,

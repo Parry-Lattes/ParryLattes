@@ -42,7 +42,7 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 			&producaoObj.Autor,
 			&producaoObj.Titulo,
 			&producaoObj.DataDePublicacao,
-			&producaoObj.TipoS,
+			&producaoObj.Tipo,
 			&producaoObj.Hash,
 		)
 		if err != nil {
@@ -89,7 +89,7 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(
 			&producaoObj.Autor,
 			&producaoObj.Titulo,
 			&producaoObj.DataDePublicacao,
-			&producaoObj.TipoS,
+			&producaoObj.Tipo,
 			&producaoObj.Hash,
 		)
 		if err != nil {
@@ -189,7 +189,7 @@ func (pr *ProducaoRepository) GetProducaoByHash(
 		&producao.Autor,
 		&producao.Titulo,
 		&producao.DataDePublicacao,
-		&producao.TipoS,
+		&producao.Tipo,
 		&producao.Hash,
 	)
 	if err != nil {

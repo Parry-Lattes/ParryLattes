@@ -29,6 +29,19 @@ func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
 	return cu.CurriculoRepository.GetCurriculos()
 }
 
+func (cu *CurriculoUsecase) identifyTipo(producao *model.Producao) int64 {
+	switch producao.Tipo {
+	case "Bibliográfica":
+		return 1
+	case "Técnica":
+		return 2
+	case "Patente":
+		return 3
+	default:
+		return 4
+	}
+}
+
 func (cu *CurriculoUsecase) GetCurriculoById(
 	idPessoa int64,
 ) (*model.Curriculo, error) {
