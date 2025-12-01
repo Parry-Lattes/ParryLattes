@@ -37,32 +37,32 @@ func (cu *CurriculoUsecase) GetCurriculoById(
 		return nil, err
 	}
 
-	curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(
-		curriculo,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, producao := range curriculo.Producoes {
-		producao.Coautores, err = cu.AbreviaturaRepository.GetCoautoresByIdProducao(
-			producao.IdProducao,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, coautor := range producao.Coautores {
-			coautor.Abreviatura, err = cu.AbreviaturaRepository.GetAbreviaturaByCoautor(
-				coautor,
-			)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-
-	}
+	// curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(
+	// 	curriculo,
+	// )
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// for _, producao := range curriculo.Producoes {
+	// 	producao.Coautores, err = cu.AbreviaturaRepository.GetCoautoresByIdProducao(
+	// 		producao.IdProducao,
+	// 	)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	//
+	// 	for _, coautor := range producao.Coautores {
+	// 		coautor.Abreviatura, err = cu.AbreviaturaRepository.GetAbreviaturaByCoautor(
+	// 			coautor,
+	// 		)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	//
+	// 	}
+	//
+	// }
 
 	return curriculo, nil
 }

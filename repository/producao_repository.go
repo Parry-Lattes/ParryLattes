@@ -32,9 +32,11 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 	}
 
 	var producaoList []*model.Producao
-	var producaoObj *model.Producao = &model.Producao{}
 
 	for rows.Next() {
+
+		var producaoObj model.Producao = model.Producao{}
+
 		err = rows.Scan(
 			&producaoObj.IdProducao,
 			&producaoObj.Autor,
@@ -47,7 +49,7 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 			return nil, err
 		}
 
-		producaoList = append(producaoList, producaoObj)
+		producaoList = append(producaoList, &producaoObj)
 	}
 
 	rows.Close()
@@ -64,7 +66,7 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(
 		"INNER JOIN Curriculo c " +
 		"ON c.idCurriculo = cp.idCurriculo " +
 		"INNER JOIN TipoDeProducao tp " +
-		"ON tp. idTipoDeProducao = p.idTipo " +
+		"ON tp.idTipoDeProducao = p.idTipo " +
 		"WHERE c.idPessoa = ? " +
 		"ORDER BY p.DataDePublicacao DESC"
 
@@ -74,10 +76,13 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	var producaoList []*model.Producao
-	var producaoObj *model.Producao = &model.Producao{}
 
 	for rows.Next() {
+
+		var producaoObj model.Producao = model.Producao{}
 
 		err = rows.Scan(
 			&producaoObj.IdProducao,
@@ -91,11 +96,8 @@ func (pr *ProducaoRepository) GetProducaoByIdLattes(
 			fmt.Println(err)
 			return nil, err
 		}
-
-		producaoList = append(producaoList, producaoObj)
+		producaoList = append(producaoList, &producaoObj)
 	}
-
-	rows.Close()
 
 	return producaoList, nil
 }
@@ -243,10 +245,12 @@ func (pr *ProducaoRepository) GetCoautoresById(
 
 	defer rows.Close()
 
-	var coautorObj *model.Abreviatura = &model.Abreviatura{}
 	var coautorList []*model.Abreviatura
 
 	for rows.Next() {
+
+		var coautorObj model.Abreviatura = model.Abreviatura{}
+
 		err = rows.Scan(
 			&coautorObj.IdAbreviatura,
 			&coautorObj.IdPessoa,
@@ -260,7 +264,7 @@ func (pr *ProducaoRepository) GetCoautoresById(
 			return nil, err
 		}
 
-		coautorList = append(coautorList, coautorObj)
+		coautorList = append(coautorList, &coautorObj)
 	}
 
 	return coautorList, nil

@@ -33,9 +33,11 @@ func (ar *AbreviaturaRepository) GetAbreviaturasById(
 	defer rows.Close()
 
 	var abreviaturaList []*model.Abreviatura
-	var abreviaturaObj *model.Abreviatura = &model.Abreviatura{}
 
 	for rows.Next() {
+
+		var abreviaturaObj model.Abreviatura = model.Abreviatura{}
+
 		err = rows.Scan(
 			&abreviaturaObj.IdAbreviatura,
 			&abreviaturaObj.IdPessoa,
@@ -49,7 +51,7 @@ func (ar *AbreviaturaRepository) GetAbreviaturasById(
 			return nil, err
 		}
 
-		abreviaturaList = append(abreviaturaList, abreviaturaObj)
+		abreviaturaList = append(abreviaturaList, &abreviaturaObj)
 	}
 
 	return abreviaturaList, nil
@@ -101,9 +103,11 @@ func (ar *AbreviaturaRepository) GetCoautoresByIdProducao(
 	}
 
 	var CoautorList []*model.Coautor
-	var CoautorObj *model.Coautor = &model.Coautor{Abreviatura: &model.Abreviatura{}}
 
 	for rows.Next() {
+
+		var CoautorObj model.Coautor = model.Coautor{Abreviatura: &model.Abreviatura{}}
+
 		err = rows.Scan(
 			&CoautorObj.IdCoautor,
 			&CoautorObj.IdProducao,
@@ -117,7 +121,7 @@ func (ar *AbreviaturaRepository) GetCoautoresByIdProducao(
 			return nil, err
 		}
 
-		CoautorList = append(CoautorList, CoautorObj)
+		CoautorList = append(CoautorList, &CoautorObj)
 	}
 
 	return CoautorList, nil

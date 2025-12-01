@@ -31,9 +31,11 @@ func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 	defer rows.Close()
 
 	var pessoaList []*model.Pessoa
-	var pessoaObj *model.Pessoa = &model.Pessoa{}
 
 	for rows.Next() {
+
+		var pessoaObj model.Pessoa = model.Pessoa{}
+
 		err = rows.Scan(
 			&pessoaObj.IdPessoa,
 			&pessoaObj.Nome,
@@ -45,7 +47,7 @@ func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 			return nil, err
 		}
 
-		pessoaList = append(pessoaList, pessoaObj)
+		pessoaList = append(pessoaList, &pessoaObj)
 	}
 
 	return pessoaList, nil

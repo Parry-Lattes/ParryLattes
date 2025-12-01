@@ -29,9 +29,10 @@ func (cr *CurriculoRepository) GetCurriculos() ([]*model.Curriculo, error) {
 	defer rows.Close()
 
 	var curriculoList []*model.Curriculo
-	var curriculoObj *model.Curriculo = &model.Curriculo{}
 
 	for rows.Next() {
+
+		var curriculoObj model.Curriculo = model.Curriculo{}
 
 		err = rows.Scan(
 			&curriculoObj.IdPessoa,
@@ -41,7 +42,7 @@ func (cr *CurriculoRepository) GetCurriculos() ([]*model.Curriculo, error) {
 			return nil, err
 		}
 
-		curriculoList = append(curriculoList, curriculoObj)
+		curriculoList = append(curriculoList, &curriculoObj)
 
 	}
 
