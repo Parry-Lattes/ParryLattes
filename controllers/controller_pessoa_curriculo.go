@@ -1,50 +1,30 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
-	"parry_end/model"
-	"parry_end/usecase"
 	"strconv"
 
 	"github.com/labstack/echo"
+
+	"parry_end/model"
+	"parry_end/usecase"
 )
 
 type ControllerPessoaCurriculo struct {
 	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
 }
 
-type TipoDeProducao int
-
-const (
-	Bibliografica TipoDeProducao = iota
-	Patente
-	Tecnica
-	Outro
-)
-
-func NewControllerPessoaCurriculo(usecase *usecase.PessoaCurriculoUsecase) ControllerPessoaCurriculo {
+func NewControllerPessoaCurriculo(
+	usecase *usecase.PessoaCurriculoUsecase,
+) ControllerPessoaCurriculo {
 	return ControllerPessoaCurriculo{
 		PessoaCurriculoUsecase: usecase,
 	}
 }
 
-
-func (c ControllerPessoaCurriculo)typeConvert(tipo string) TipoDeProducao {
-	switch tipo {
-	case "Bibliográfica":
-		return Bibliografica
-	case "Patente":
-		return Patente
-	case "Técica":
-		return Tecnica
-	default:
-		return Outro
-	}
-}
-
 func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
-
 	id := e.Param("idLattes")
 
 	if id == "" {
@@ -56,7 +36,6 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 	}
 
 	idLattes, err := strconv.Atoi(id)
-
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
@@ -64,30 +43,27 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(idLattes)
-
+	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(
+		int64(idLattes),
+	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			response := model.Response{
+				Message: "Curriculo not found",
+			}
+			e.JSON(http.StatusNotFound, response)
+		}
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
 	}
-
-	if curriculo == nil {
-		response := model.Response{
-			Message: "Curriculo not found",
-		}
-		return e.JSON(http.StatusNotFound, response)
-	}
-
 	return e.JSON(http.StatusOK, curriculo)
 }
 
-
 func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
-
 	var pessoaCurriculo model.PessoaCurriculo = model.PessoaCurriculo{}
 
 	id := e.Param("idLattes")
-	
+
 	if id == "" {
 		response := model.Response{
 			Message: "Null ID",
@@ -97,34 +73,83 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 	}
 
 	idLattes, err := strconv.Atoi(id)
-
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
 		}
 		return e.JSON(http.StatusBadRequest, response)
 	}
-	
 
 	err = e.Bind(&pessoaCurriculo.Curriculo)
 
-// conversão de tipo ficará aqui
-
-
-
 	pessoaCurriculo.Pessoa = &model.Pessoa{}
-	pessoaCurriculo.Pessoa.IdLattes = idLattes
-
+	pessoaCurriculo.Pessoa.IdLattes = int64(idLattes)
 
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusBadRequest, err)
 	}
 
-	fmt.Println("Sexo3")
-
 	err = pc.PessoaCurriculoUsecase.CreateCurriculo(&pessoaCurriculo)
+	if err != nil {
+		fmt.Println(err)
+		e.JSON(http.StatusInternalServerError, err)
+	}
 
+	return e.JSON(http.StatusOK, err)
+}
 
+func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
+	id := e.Param("idLattes")
+
+	if id == "" {
+		response := model.Response{
+			Message: "Null ID",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	idLattes, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	err = pc.PessoaCurriculoUsecase.DeleteCurriculo(int64(idLattes))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return e.JSON(http.StatusNotFound, err)
+		}
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+	return e.JSON(http.StatusOK, err)
+}
+
+func (pc *ControllerPessoaCurriculo) DeletePessoa(e echo.Context) error {
+	id := e.Param("idLattes")
+	if id == "" {
+		response := model.Response{
+			Message: "Null ID",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	idLattes, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	err = pc.PessoaCurriculoUsecase.DeletePessoa(int64(idLattes))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return e.JSON(http.StatusNotFound, err)
+		}
+		return e.JSON(http.StatusInternalServerError, err)
+	}
 	return e.JSON(http.StatusOK, err)
 }

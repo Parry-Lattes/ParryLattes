@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+
 	"parry_end/model"
 )
 
@@ -13,16 +14,15 @@ type PessoaRepository struct {
 func NewPessoaRepository(connection *sql.DB) PessoaRepository {
 	return PessoaRepository{
 		Repository: Repository{
-			Connection: connection},
+			Connection: connection,
+		},
 	}
 }
 
 func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
-
 	querry := "SELECT idPessoa,Nome,idLattes,Nacionalidade " +
 		"FROM Pessoa"
 	rows, err := pr.Connection.Query(querry)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -31,31 +31,35 @@ func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 	defer rows.Close()
 
 	var pessoaList []*model.Pessoa
-	var pessoaObj *model.Pessoa = &model.Pessoa{}
 
 	for rows.Next() {
+
+		var pessoaObj model.Pessoa = model.Pessoa{}
+
 		err = rows.Scan(
 			&pessoaObj.IdPessoa,
 			&pessoaObj.Nome,
 			&pessoaObj.IdLattes,
 			&pessoaObj.Nacionalidade,
 		)
-
 		if err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
 
-		pessoaList = append(pessoaList, pessoaObj)
+		pessoaList = append(pessoaList, &pessoaObj)
 	}
 
 	return pessoaList, nil
 }
 
-func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, error) {
-	query, err := pr.Connection.Prepare("INSERT INTO Pessoa (Nome,idLattes,Nacionalidade) " +
-		"VALUES (?, ?, ?)")
-
+func (pr *PessoaRepository) CreatePessoa(
+	pessoa *model.Pessoa,
+) (*model.Pessoa, error) {
+	query, err := pr.Connection.Prepare(
+		"INSERT INTO Pessoa (Nome,idLattes,Nacionalidade) " +
+			"VALUES (?, ?, ?)",
+	)
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
 		return nil, err
@@ -68,14 +72,12 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, e
 		pessoa.IdLattes,
 		pessoa.Nacionalidade,
 	)
-
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
 		return nil, err
 	}
 
 	id, err := result.LastInsertId()
-
 	if err != nil {
 		fmt.Println("Erro ao obter último ID:", err)
 		return nil, err
@@ -86,10 +88,12 @@ func (pr *PessoaRepository) CreatePessoa(pessoa *model.Pessoa) (*model.Pessoa, e
 	return pessoa, nil
 }
 
-func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, error) {
-
-	query, err := pr.Connection.Prepare("SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?")
-
+func (pr *PessoaRepository) GetPessoaByIdLattes(
+	IdLattes int64,
+) (*model.Pessoa, error) {
+	query, err := pr.Connection.Prepare(
+		"SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?",
+	)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -104,7 +108,6 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 		&pessoa.Nome,
 		&pessoa.IdLattes,
 		&pessoa.Nacionalidade)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err
@@ -118,13 +121,11 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(IdLattes int) (*model.Pessoa, er
 }
 
 func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
-
 	query, err := pr.Connection.Prepare("UPDATE Pessoa " +
 		"SET Nome = ?, " +
 		"idLattes = ?, " +
 		"Nacionalidade = ? " +
 		"WHERE idLattes = ?")
-
 	if err != nil {
 		fmt.Println("Erro ao preparar query:", err)
 		return err
@@ -138,19 +139,18 @@ func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 		pessoa.Nacionalidade,
 		pessoa.IdLattes,
 	)
-
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
 		return err
 	}
 
 	return nil
-
 }
 
 func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
-
 	query := "DELETE FROM Pessoa WHERE idLattes = ?"
+
+	fmt.Println("IdLattes:", idLattes)
 
 	result, err := pr.Connection.Exec(query, idLattes)
 	if err != nil {
@@ -170,5 +170,4 @@ func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
 	}
 
 	return nil
-
 }

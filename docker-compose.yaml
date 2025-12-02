@@ -15,7 +15,8 @@ services:
     restart: "on-failure"
     container_name: ParryDB
     volumes:
-      - ./resources:/docker-entrypoint-initdb.d
+      - ./resources/ParryLattesDB.sql:/docker-entrypoint-initdb.d/a.sql
+      - ./resources/scripts/tipo_de_producao.sql:/docker-entrypoint-initdb.d/b.sql
     ports:
       - "3306:3306"
     environment:

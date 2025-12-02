@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+
 	"parry_end/model"
 )
 
@@ -33,11 +35,10 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		pessoaCurriculo.Curriculo,
 		pessoa,
 	)
-	if err != nil {
-		return err
-	}
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
+
+		value.TipoId = cu.CurriculoUsecase.identifyTipo(value)
 
 		Producao, err := cu.CurriculoUsecase.ProducaoRepository.CreateProducao(
 			value,
@@ -53,13 +54,33 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		if err != nil {
 			return err
 		}
+
+		for _, coautor := range value.Coautores {
+
+			coautor.Abreviatura.IdPessoa = nil
+			coautor.IdProducao = value.IdProducao
+
+			fmt.Println(coautor.IdProducao)
+			coautor.Abreviatura, err = cu.PessoaUsecase.abreviaturaRepository.CreateAbreviatura(
+				coautor.Abreviatura,
+			)
+			if err != nil {
+				return err
+			}
+			coautor, err = cu.PessoaUsecase.abreviaturaRepository.CreateACoautor(
+				coautor,
+			)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
 }
 
 func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
-	idLattes int,
+	idLattes int64,
 ) (*model.Curriculo, error) {
 	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
@@ -79,12 +100,111 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 	}
 
 	for _, value := range curriculo.Producoes {
-		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByIdProducao(
-			value.IdProducao,
+		value.Coautores, err = cu.CurriculoUsecase.AbreviaturaRepository.GetCoautoresByIdProducao(
+			curriculo.IdCurriculo,
 		)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, coautor := range value.Coautores {
+			coautor.Abreviatura, err = cu.CurriculoUsecase.AbreviaturaRepository.GetAbreviaturaByCoautor(
+				coautor,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+		}
 	}
 
 	return curriculo, nil
+}
+
+func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
+	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
+	var err error
+
+	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(
+		idLattes,
+	)
+	if err != nil {
+		return err
+	}
+
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = cu.CurriculoUsecase.DeleteCoautoresByIdProducao(
+		pessoaCurriculo.Curriculo.IdCurriculo,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = cu.CurriculoUsecase.DeleteProducaoByIdCurriculo(
+		pessoaCurriculo.Curriculo.IdCurriculo,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = cu.CurriculoUsecase.DeleteCurriculoByIdPessoa(
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
+	if err != nil {
+		return nil
+	}
+
+	return nil
+}
+
+func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes int64) error {
+	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
+	var err error
+
+	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
+	if err != nil {
+		return err
+	}
+
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
+
+	if err != nil {
+		if pessoaCurriculo.Curriculo == nil {
+
+			erro := cu.PessoaUsecase.DeletePessoa(
+				pessoaCurriculo.Pessoa.IdLattes,
+			)
+
+			if erro != nil {
+				return err
+			}
+
+			return nil
+		}
+	} else {
+		erro := cu.DeleteCurriculo(pessoaCurriculo.Pessoa.IdLattes)
+
+		if erro != nil {
+			return erro
+		}
+
+		erro = cu.PessoaUsecase.DeletePessoa(pessoaCurriculo.Pessoa.IdLattes)
+		if erro != nil {
+			return erro
+		}
+
+		return nil
+	}
+
+	return nil
 }
 
 // func (cu *PessoaCurriculoUsecase) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+
 	"parry_end/model"
 )
 
@@ -13,16 +14,17 @@ type AbreviaturaRepository struct {
 func NewAbreviaturaRepository(connection *sql.DB) AbreviaturaRepository {
 	return AbreviaturaRepository{
 		Repository: Repository{
-			Connection: connection},
+			Connection: connection,
+		},
 	}
 }
 
-func (ar *AbreviaturaRepository) GetAbreviaturasById(IdPessoa int64) ([]*model.Abreviatura, error) {
-
+func (ar *AbreviaturaRepository) GetAbreviaturasById(
+	IdPessoa int64,
+) ([]*model.Abreviatura, error) {
 	query := "SELECT idAbreviatura, idPessoa, abreviatura FROM Abreviatura WHERE idPessoa = ?"
 
 	rows, err := ar.Connection.Query(query, IdPessoa)
-
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -31,15 +33,16 @@ func (ar *AbreviaturaRepository) GetAbreviaturasById(IdPessoa int64) ([]*model.A
 	defer rows.Close()
 
 	var abreviaturaList []*model.Abreviatura
-	var abreviaturaObj *model.Abreviatura = &model.Abreviatura{}
 
 	for rows.Next() {
+
+		var abreviaturaObj model.Abreviatura = model.Abreviatura{}
+
 		err = rows.Scan(
 			&abreviaturaObj.IdAbreviatura,
 			&abreviaturaObj.IdPessoa,
 			&abreviaturaObj.Abreviatura,
 		)
-
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, err
@@ -48,37 +51,68 @@ func (ar *AbreviaturaRepository) GetAbreviaturasById(IdPessoa int64) ([]*model.A
 			return nil, err
 		}
 
-		abreviaturaList = append(abreviaturaList, abreviaturaObj)
+		abreviaturaList = append(abreviaturaList, &abreviaturaObj)
 	}
 
 	return abreviaturaList, nil
 }
-func (ar *AbreviaturaRepository) GetAbreviaturaByIdProducao(idProducao int64) ([]*model.Abreviatura, error) {
 
-	query := "SELECT a.idAbreviatura,a.idPessoa,a.Abreviatura FROM Abreviatura a " +
-		"INNER JOIN Coautor c " +
-		"ON c.idAbreviatura = a.idAbreviatura " +
-		"INNER JOIN Producao p " +
-		"ON p.idProducao = c.idProducao " +
-		"WHERE p.idProducao = ?"
-
-	rows, err := ar.Connection.Query(query, idProducao)
-
+func (ar *AbreviaturaRepository) GetAbreviaturaByCoautor(
+	coautor *model.Coautor,
+) (*model.Abreviatura, error) {
+	query, err := ar.Connection.Prepare(
+		"SELECT idAbreviatura,idPessoa,Abreviatura " +
+			"FROM Abreviatura " +
+			"WHERE idAbreviatura = ?",
+	)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	var abreviaturaList []*model.Abreviatura
-	var abreviaturaObj *model.Abreviatura = &model.Abreviatura{}
+	defer query.Close()
+
+	var abreviatura *model.Abreviatura = &model.Abreviatura{}
+
+	err = query.QueryRow(coautor.Abreviatura.IdAbreviatura).Scan(
+		&abreviatura.IdAbreviatura,
+		&abreviatura.IdPessoa,
+		&abreviatura.Abreviatura,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err
+		}
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return abreviatura, nil
+}
+
+func (ar *AbreviaturaRepository) GetCoautoresByIdProducao(
+	idProducao int64,
+) ([]*model.Coautor, error) {
+	query := "SELECT idCoautor,idProducao,idAbreviatura " +
+		"FROM Coautor " +
+		"WHERE idProducao = ?"
+	rows, err := ar.Connection.Query(query, idProducao)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var CoautorList []*model.Coautor
 
 	for rows.Next() {
-		err = rows.Scan(
-			&abreviaturaObj.IdAbreviatura,
-			&abreviaturaObj.IdPessoa,
-			&abreviaturaObj.Abreviatura,
-		)
 
+		var CoautorObj model.Coautor = model.Coautor{Abreviatura: &model.Abreviatura{}}
+
+		err = rows.Scan(
+			&CoautorObj.IdCoautor,
+			&CoautorObj.IdProducao,
+			&CoautorObj.Abreviatura.IdAbreviatura,
+		)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, err
@@ -87,20 +121,21 @@ func (ar *AbreviaturaRepository) GetAbreviaturaByIdProducao(idProducao int64) ([
 			return nil, err
 		}
 
-		abreviaturaList = append(abreviaturaList, abreviaturaObj)
+		CoautorList = append(CoautorList, &CoautorObj)
 	}
 
-	return abreviaturaList, nil
-
+	return CoautorList, nil
 }
 
-func (ar *AbreviaturaRepository) CreateAbreviatura(abreviatura *model.Abreviatura) error {
-
-	query, err := ar.Connection.Prepare("INSERT INTO Abreviatura (idPessoa,Abreviatura) VALUES (?,?)")
-
+func (ar *AbreviaturaRepository) CreateAbreviatura(
+	abreviatura *model.Abreviatura,
+) (*model.Abreviatura, error) {
+	query, err := ar.Connection.Prepare(
+		"INSERT INTO Abreviatura (idPessoa,Abreviatura) VALUES (?,?)",
+	)
 	if err != nil {
 		fmt.Println("Erro ao Preparar query:", err)
-		return err
+		return nil, err
 	}
 
 	defer query.Close()
@@ -109,75 +144,132 @@ func (ar *AbreviaturaRepository) CreateAbreviatura(abreviatura *model.Abreviatur
 		abreviatura.IdPessoa,
 		abreviatura.Abreviatura,
 	)
-
 	if err != nil {
 		fmt.Println("Erro ao executar query:", err)
-		return err
+		return nil, err
 	}
 
 	id, err := result.LastInsertId()
-
 	if err != nil {
 		fmt.Println("Errro:", err)
-		return err
+		return nil, err
 	}
 
 	abreviatura.IdAbreviatura = id
 
-	return nil
+	return abreviatura, nil
 }
 
-func (ar* AbreviaturaRepository) UpdateAbreviaturas(abreviatura* model.Abreviatura) error {
-	
-	query, err := ar.Connection.Prepare("UPDATE Abreviatura "+
-		"SET idPessoa = ? "+
-		"SET Abreviatura = ? "+
+func (ar *AbreviaturaRepository) UpdateAbreviaturas(
+	abreviatura *model.Abreviatura,
+) error {
+	query, err := ar.Connection.Prepare("UPDATE Abreviatura " +
+		"SET idPessoa = ? " +
+		"SET Abreviatura = ? " +
 		"HWERE idAbreviatura = ?")
-
 	if err != nil {
 		fmt.Println(err)
-		return err
-	}
-
-	defer query.Close()
-
-	_,err = query.Exec(
-		abreviatura.IdPessoa,
-		abreviatura.Abreviatura,
-		abreviatura.IdAbreviatura,
-	)
-
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
-
-}
-
-func (ar AbreviaturaRepository) LinkAbreviaturaToProducao(idProducao int64, abreviatura *model.Abreviatura) error {
-
-	query, err := ar.Connection.Prepare("INSERT INTO Coautor (idProducao,idAbreviatura) VALUES (?,?)")
-	
-	if err != nil {
-		fmt.Println("Erro ao Preparar query:", err)
 		return err
 	}
 
 	defer query.Close()
 
 	_, err = query.Exec(
-		idProducao,
+		abreviatura.IdPessoa,
+		abreviatura.Abreviatura,
 		abreviatura.IdAbreviatura,
 	)
-
 	if err != nil {
-		fmt.Println("Erro ao executar query:", err)
+		fmt.Println(err)
 		return err
 	}
 
-		return nil
+	return nil
+}
 
+func (ar AbreviaturaRepository) CreateACoautor(
+	coautor *model.Coautor,
+) (*model.Coautor, error) {
+	query, err := ar.Connection.Prepare(
+		"INSERT INTO Coautor (idProducao,idAbreviatura) VALUES (?,?)",
+	)
+	if err != nil {
+		fmt.Println("Erro ao Preparar query:", err)
+		return nil, err
+	}
 
+	defer query.Close()
+
+	result, err := query.Exec(
+		coautor.IdProducao,
+		coautor.Abreviatura.IdAbreviatura,
+	)
+	if err != nil {
+		fmt.Println("Erro ao executar query:", err)
+		return nil, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Erro ao obter o último ID:", err)
+		return nil, err
+	}
+
+	coautor.IdCoautor = id
+
+	return coautor, nil
+}
+
+func (ar AbreviaturaRepository) DeleteAbreviaturasByIdPessoa(
+	idPessoa int64,
+) error {
+	query := "DELETE FROM Abreviatura " +
+		"WHERE idPessoa = ?"
+
+	result, err := ar.Connection.Exec(query, idPessoa)
+	if err != nil {
+		fmt.Println("erro ao deletar Abreviatura")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Abreviatura não encontrada:")
+		return err
+	}
+
+	return nil
+}
+
+func (ar AbreviaturaRepository) DeleteCoautoresByIdProducao(
+	idProducao int64,
+) error {
+	query := "DELETE a.*,c.* FROM Abreviatura a " +
+		"INNER JOIN Coautor c " +
+		"ON c.idAbreviatura = a.idAbreviatura " +
+		"WHERE c.idProducao = ?"
+
+	result, err := ar.Connection.Exec(query, idProducao)
+	if err != nil {
+		fmt.Println("erro ao deletar Coautores")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Coautor não encontrada:")
+		return err
+	}
+
+	return nil
 }
