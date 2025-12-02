@@ -163,6 +163,50 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
 	return nil
 }
 
+func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes int64) error {
+	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
+	var err error
+
+	pessoaCurriculo.Pessoa, err = cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
+	if err != nil {
+		return err
+	}
+
+	pessoaCurriculo.Curriculo, err = cu.CurriculoUsecase.GetCurriculoById(
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
+
+	if err != nil {
+		if pessoaCurriculo.Curriculo == nil {
+
+			erro := cu.PessoaUsecase.DeletePessoa(
+				pessoaCurriculo.Pessoa.IdLattes,
+			)
+
+			if erro != nil {
+				return err
+			}
+
+			return nil
+		}
+	} else {
+		erro := cu.DeleteCurriculo(pessoaCurriculo.Pessoa.IdLattes)
+
+		if erro != nil {
+			return erro
+		}
+
+		erro = cu.PessoaUsecase.DeletePessoa(pessoaCurriculo.Pessoa.IdLattes)
+		if erro != nil {
+			return erro
+		}
+
+		return nil
+	}
+
+	return nil
+}
+
 // func (cu *PessoaCurriculoUsecase) DeletePessoa(pessoaCurriculo *model.PessoaCurriculo) error {
 //
 // 	var err error

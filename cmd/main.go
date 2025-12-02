@@ -54,6 +54,7 @@ func main() {
 	e.GET("/pessoa/:idLattes", controllerPessoa.GetPessoaByIdLattes)
 	e.POST("/pessoa", controllerPessoa.CreatePessoa)
 	// e.PUT("/pessoa", controllerPessoa.UpdatePessoa)
+	e.DELETE("/pessoa/:idLattes", controllerPessoaCurriculo.DeletePessoa)
 
 	e.GET(
 		"/pessoa/:idLattes/curriculo",

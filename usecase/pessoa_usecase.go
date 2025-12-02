@@ -71,20 +71,20 @@ func (pu *PessoaUsecase) GetPessoaByIdLattes(
 	return pessoa, nil
 }
 
-func (pu *PessoaUsecase) UpdatePessoa(pessoa *model.Pessoa) error {
-	err := pu.pessoaRepository.UpdatePessoa(pessoa)
-	if err != nil {
-		return err
-	}
-
-	for _, values := range pessoa.Abreviaturas {
-		err = pu.abreviaturaRepository.UpdateAbreviaturas(values)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// func (pu *PessoaUsecase) UpdatePessoa(pessoa *model.Pessoa) error {
+// 	err := pu.pessoaRepository.UpdatePessoa(pessoa)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	for _, values := range pessoa.Abreviaturas {
+// 		err = pu.abreviaturaRepository.UpdateAbreviaturas(values)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
 func (pu *PessoaUsecase) DeletePessoa(idLattes int64) error {
 	err := pu.pessoaRepository.DeletePessoa(idLattes)

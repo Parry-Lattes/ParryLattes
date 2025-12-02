@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -87,30 +86,30 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 	return e.NoContent(http.StatusCreated)
 }
 
-func (c *ControllerPessoa) UpdatePessoa(e echo.Context) error {
-	var pessoa *model.Pessoa
-	err := e.Bind(&pessoa)
-	if err != nil {
-		fmt.Println(err)
-		e.JSON(http.StatusBadRequest, err)
-	}
-
-	pessoa, err = c.PessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			fmt.Println(err)
-			return e.JSON(http.StatusNotFound, err)
-		}
-
-		fmt.Println(err)
-		return e.JSON(http.StatusInternalServerError, err)
-	}
-
-	err = c.PessoaUsecase.UpdatePessoa(pessoa)
-	if err != nil {
-		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
-	}
-
-	return e.JSON(http.StatusOK, nil)
-}
+// func (c *ControllerPessoa) UpdatePessoa(e echo.Context) error {
+// 	var pessoa *model.Pessoa
+// 	err := e.Bind(&pessoa)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		e.JSON(http.StatusBadRequest, err)
+// 	}
+//
+// 	pessoa, err = c.PessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
+// 	if err != nil {
+// 		if err == sql.ErrNoRows {
+// 			fmt.Println(err)
+// 			return e.JSON(http.StatusNotFound, err)
+// 		}
+//
+// 		fmt.Println(err)
+// 		return e.JSON(http.StatusInternalServerError, err)
+// 	}
+//
+// 	err = c.PessoaUsecase.UpdatePessoa(pessoa)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		e.JSON(http.StatusInternalServerError, err)
+// 	}
+//
+// 	return e.JSON(http.StatusOK, nil)
+// }

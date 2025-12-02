@@ -150,6 +150,8 @@ func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
 	query := "DELETE FROM Pessoa WHERE idLattes = ?"
 
+	fmt.Println("IdLattes:", idLattes)
+
 	result, err := pr.Connection.Exec(query, idLattes)
 	if err != nil {
 		fmt.Println("erro ao deletar Pessoa")

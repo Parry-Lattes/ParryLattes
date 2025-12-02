@@ -126,3 +126,30 @@ func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
 	}
 	return e.JSON(http.StatusOK, err)
 }
+
+func (pc *ControllerPessoaCurriculo) DeletePessoa(e echo.Context) error {
+	id := e.Param("idLattes")
+	if id == "" {
+		response := model.Response{
+			Message: "Null ID",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	idLattes, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	err = pc.PessoaCurriculoUsecase.DeletePessoa(int64(idLattes))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return e.JSON(http.StatusNotFound, err)
+		}
+		return e.JSON(http.StatusInternalServerError, err)
+	}
+	return e.JSON(http.StatusOK, err)
+}
