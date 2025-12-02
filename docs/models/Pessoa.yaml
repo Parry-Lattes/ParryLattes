@@ -1,0 +1,14 @@
+type: object
+properties:
+  nome:
+    type: string
+  id_lattes:
+    type: string
+    minLength: 16
+    maxLength: 16
+  abreviaturas:
+    type: array
+    items:
+      type: string
+  nacionalidade:
+    type: string

@@ -16,7 +16,12 @@ components:
         example: '76843029134'
       description: 'ID Lattes da pessoa na qual o currículo está ou será associado.'
   schemas:
-    $ref: 'schemas.yaml'
+    Pessoa:
+      $ref: 'models/Pessoa.yaml'
+    Curriculo:
+      $ref: 'models/Curriculo.yaml'
+    Producao:
+      $ref: 'models/Producao.yaml'
 
 paths:
   /:

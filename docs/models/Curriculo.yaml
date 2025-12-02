@@ -1,0 +1,9 @@
+type: object
+properties:
+  ultima_atualizacao:
+    type: string
+  producoes:
+    type: array
+    items:
+      schema:
+        $ref: 'Producao.yaml'
