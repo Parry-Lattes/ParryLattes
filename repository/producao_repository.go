@@ -202,8 +202,36 @@ func (pr *ProducaoRepository) GetProducaoByHash(
 	return producao, nil
 }
 
+func (pr *ProducaoRepository) DeleteProducaoByIdCurriculo(
+	idCurriculo int64,
+) error {
+	query := "DELETE c.*,p.* FROM Producao p " +
+		"INNER JOIN CurriculoProducao c " +
+		"ON c.idProducao = p.idProducao " +
+		"WHERE c.idCurriculo = ?"
+
+	result, err := pr.Connection.Exec(query, idCurriculo)
+	if err != nil {
+		fmt.Println("erro ao deletar Producoes")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Producao não encontrada:")
+		return err
+	}
+
+	return nil
+}
+
 //
-// func (pr *ProducaoRepository) DeleteProducao(hash int64) error {
+// func (pr *ProducaoRepository) DeleteProducaoBydHash(hash int64) error {
 // 	query := "DELETE FROM Producao WHERE Hash = ?"
 //
 // 	result, err := pr.Connection.Exec(query, hash)

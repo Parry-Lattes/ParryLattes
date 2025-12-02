@@ -89,7 +89,7 @@ func (pr *PessoaRepository) CreatePessoa(
 }
 
 func (pr *PessoaRepository) GetPessoaByIdLattes(
-	IdLattes int,
+	IdLattes int64,
 ) (*model.Pessoa, error) {
 	query, err := pr.Connection.Prepare(
 		"SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?",

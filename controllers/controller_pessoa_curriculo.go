@@ -16,33 +16,11 @@ type ControllerPessoaCurriculo struct {
 	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
 }
 
-type TipoDeProducao int
-
-const (
-	Bibliografica TipoDeProducao = iota
-	Patente
-	Tecnica
-	Outro
-)
-
 func NewControllerPessoaCurriculo(
 	usecase *usecase.PessoaCurriculoUsecase,
 ) ControllerPessoaCurriculo {
 	return ControllerPessoaCurriculo{
 		PessoaCurriculoUsecase: usecase,
-	}
-}
-
-func (c ControllerPessoaCurriculo) typeConvert(tipo string) TipoDeProducao {
-	switch tipo {
-	case "Bibliográfica":
-		return Bibliografica
-	case "Patente":
-		return Patente
-	case "Técica":
-		return Tecnica
-	default:
-		return Outro
 	}
 }
 
@@ -65,7 +43,9 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(idLattes)
+	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(
+		int64(idLattes),
+	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			response := model.Response{
@@ -103,7 +83,7 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 	err = e.Bind(&pessoaCurriculo.Curriculo)
 
 	pessoaCurriculo.Pessoa = &model.Pessoa{}
-	pessoaCurriculo.Pessoa.IdLattes = idLattes
+	pessoaCurriculo.Pessoa.IdLattes = int64(idLattes)
 
 	if err != nil {
 		fmt.Println(err)
@@ -116,5 +96,33 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 		e.JSON(http.StatusInternalServerError, err)
 	}
 
+	return e.JSON(http.StatusOK, err)
+}
+
+func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
+	id := e.Param("idLattes")
+
+	if id == "" {
+		response := model.Response{
+			Message: "Null ID",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	idLattes, err := strconv.Atoi(id)
+	if err != nil {
+		response := model.Response{
+			Message: "ID Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+	}
+
+	err = pc.PessoaCurriculoUsecase.DeleteCurriculo(int64(idLattes))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return e.JSON(http.StatusNotFound, err)
+		}
+		return e.JSON(http.StatusInternalServerError, err)
+	}
 	return e.JSON(http.StatusOK, err)
 }

@@ -98,6 +98,26 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 	return nil
 }
 
+func (cu *CurriculoUsecase) DeleteProducaoByIdCurriculo(
+	idCurriculo int64,
+) error {
+	err := cu.ProducaoRepository.DeleteProducaoByIdCurriculo(idCurriculo)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cu *CurriculoUsecase) DeleteCurriculoByIdPessoa(idPessoa int64) error {
+	err := cu.CurriculoRepository.DeleteCurriculo(idPessoa)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
 // 	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
 //

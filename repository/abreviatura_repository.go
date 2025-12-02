@@ -219,3 +219,57 @@ func (ar AbreviaturaRepository) CreateACoautor(
 
 	return coautor, nil
 }
+
+func (ar AbreviaturaRepository) DeleteAbreviaturasByIdPessoa(
+	idPessoa int64,
+) error {
+	query := "DELETE FROM Abreviatura " +
+		"WHERE idPessoa = ?"
+
+	result, err := ar.Connection.Exec(query, idPessoa)
+	if err != nil {
+		fmt.Println("erro ao deletar Abreviatura")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Abreviatura não encontrada:")
+		return err
+	}
+
+	return nil
+}
+
+func (ar AbreviaturaRepository) DeleteCoautoresByIdProducao(
+	idProducao int64,
+) error {
+	query := "DELETE a.*,c.* FROM Abreviatura " +
+		"INNER JOIN Coautor c " +
+		"ON c.idAbreviatura = a.idAbreviatura " +
+		"WHERE c.idProducao = ?"
+
+	result, err := ar.Connection.Exec(query, idProducao)
+	if err != nil {
+		fmt.Println("erro ao deletar Pessoa")
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println("erro ao coletar linhas afetadas")
+		return err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("pessoa não encontrada:")
+		return err
+	}
+
+	return nil
+}

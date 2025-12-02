@@ -54,7 +54,7 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(idLattes)
+	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(int64(idLattes))
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)

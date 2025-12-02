@@ -65,6 +65,10 @@ func main() {
 		controllerPessoaCurriculo.CreateCurriculo,
 	)
 	// e.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
+	e.DELETE(
+		"/pessoa/:idLattes/curriculo",
+		controllerPessoaCurriculo.DeleteCurriculo,
+	)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
