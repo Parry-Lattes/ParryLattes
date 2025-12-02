@@ -249,14 +249,14 @@ func (ar AbreviaturaRepository) DeleteAbreviaturasByIdPessoa(
 func (ar AbreviaturaRepository) DeleteCoautoresByIdProducao(
 	idProducao int64,
 ) error {
-	query := "DELETE a.*,c.* FROM Abreviatura " +
+	query := "DELETE a.*,c.* FROM Abreviatura a " +
 		"INNER JOIN Coautor c " +
 		"ON c.idAbreviatura = a.idAbreviatura " +
 		"WHERE c.idProducao = ?"
 
 	result, err := ar.Connection.Exec(query, idProducao)
 	if err != nil {
-		fmt.Println("erro ao deletar Pessoa")
+		fmt.Println("erro ao deletar Coautores")
 		return err
 	}
 
@@ -267,7 +267,7 @@ func (ar AbreviaturaRepository) DeleteCoautoresByIdProducao(
 	}
 
 	if rowsAffected == 0 {
-		fmt.Println("pessoa não encontrada:")
+		fmt.Println("Coautor não encontrada:")
 		return err
 	}
 

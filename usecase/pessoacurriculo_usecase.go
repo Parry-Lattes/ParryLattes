@@ -138,11 +138,12 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
 	if err != nil {
 		return err
 	}
-	err = cu.CurriculoUsecase.DeleteCurriculoByIdPessoa(
-		pessoaCurriculo.Pessoa.IdPessoa,
+
+	err = cu.CurriculoUsecase.DeleteCoautoresByIdProducao(
+		pessoaCurriculo.Curriculo.IdCurriculo,
 	)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	err = cu.CurriculoUsecase.DeleteProducaoByIdCurriculo(
@@ -150,6 +151,13 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
 	)
 	if err != nil {
 		return err
+	}
+
+	err = cu.CurriculoUsecase.DeleteCurriculoByIdPessoa(
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
+	if err != nil {
+		return nil
 	}
 
 	return nil

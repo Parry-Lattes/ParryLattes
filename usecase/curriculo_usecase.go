@@ -118,6 +118,17 @@ func (cu *CurriculoUsecase) DeleteCurriculoByIdPessoa(idPessoa int64) error {
 	return nil
 }
 
+func (cu *CurriculoUsecase) DeleteCoautoresByIdProducao(
+	idProducao int64,
+) error {
+	err := cu.AbreviaturaRepository.DeleteCoautoresByIdProducao(idProducao)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
 // 	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
 //
