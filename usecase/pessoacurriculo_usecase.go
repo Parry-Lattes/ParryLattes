@@ -80,7 +80,7 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 }
 
 func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
-	idLattes int64,
+	idLattes string,
 ) (*model.Curriculo, error) {
 	pessoa, err := cu.PessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
@@ -121,7 +121,7 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 	return curriculo, nil
 }
 
-func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
+func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
 	var err error
 
@@ -163,7 +163,7 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes int64) error {
 	return nil
 }
 
-func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes int64) error {
+func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes string) error {
 	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
 	var err error
 

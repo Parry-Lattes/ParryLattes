@@ -22,7 +22,7 @@ USE `mydb` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Pessoa` (
   `idPessoa` INT NOT NULL AUTO_INCREMENT,
-  `idLattes` INT NOT NULL,
+  `idLattes` VARCHAR(17) NOT NULL,
   `Nome` VARCHAR(45) NOT NULL,
   `Nacionalidade` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`idPessoa`),
@@ -146,13 +146,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Producao` (
   `idProducao` INT NOT NULL AUTO_INCREMENT,
   `idTipo` INT NOT NULL,
   `Autor` VARCHAR(45) NOT NULL,
-  `Titulo` VARCHAR(90) NOT NULL,
+  `Titulo` VARCHAR(200) NOT NULL,
   `DataDePublicacao` YEAR(4) NOT NULL,
-  `Hash` VARCHAR(255) NOT NULL,
+  `Hash` VARCHAR(1) NULL,
   PRIMARY KEY (`idProducao`, `idTipo`),
   UNIQUE INDEX `idProducao_UNIQUE` (`idProducao` ASC) VISIBLE,
   INDEX `fk_Producao_2_idx` (`idTipo` ASC) VISIBLE,
-  UNIQUE INDEX `Hash_UNIQUE` (`Hash` ASC) VISIBLE,
   CONSTRAINT `fk_Producao_2`
     FOREIGN KEY (`idTipo`)
     REFERENCES `mydb`.`TipoDeProducao` (`idTipoDeProducao`)

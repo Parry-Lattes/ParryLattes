@@ -56,6 +56,7 @@ func (pr *PessoaRepository) GetPessoas() ([]*model.Pessoa, error) {
 func (pr *PessoaRepository) CreatePessoa(
 	pessoa *model.Pessoa,
 ) (*model.Pessoa, error) {
+	fmt.Println("BD:", pessoa.IdLattes)
 	query, err := pr.Connection.Prepare(
 		"INSERT INTO Pessoa (Nome,idLattes,Nacionalidade) " +
 			"VALUES (?, ?, ?)",
@@ -89,7 +90,7 @@ func (pr *PessoaRepository) CreatePessoa(
 }
 
 func (pr *PessoaRepository) GetPessoaByIdLattes(
-	IdLattes int64,
+	IdLattes string,
 ) (*model.Pessoa, error) {
 	query, err := pr.Connection.Prepare(
 		"SELECT idPessoa,Nome,idLattes,Nacionalidade FROM Pessoa WHERE idLattes = ?",
@@ -147,7 +148,7 @@ func (pr *PessoaRepository) UpdatePessoa(pessoa *model.Pessoa) error {
 	return nil
 }
 
-func (pr *PessoaRepository) DeletePessoa(idLattes int64) error {
+func (pr *PessoaRepository) DeletePessoa(idLattes string) error {
 	query := "DELETE FROM Pessoa WHERE idLattes = ?"
 
 	fmt.Println("IdLattes:", idLattes)

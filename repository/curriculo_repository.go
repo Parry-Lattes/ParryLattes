@@ -185,6 +185,8 @@ func (cr *CurriculoRepository) GetCurriculoId(
 		return nil, err
 	}
 
+	defer query.Close()
+
 	var idCurriculo int
 
 	err = query.QueryRow(curriculo.IdPessoa).Scan(
@@ -197,8 +199,6 @@ func (cr *CurriculoRepository) GetCurriculoId(
 		fmt.Println(err)
 		return nil, err
 	}
-
-	query.Close()
 
 	return &idCurriculo, nil
 }

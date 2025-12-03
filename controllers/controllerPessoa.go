@@ -34,9 +34,9 @@ func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
 }
 
 func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
-	idLatttes := e.Param("idLattes")
+	idLattes := e.Param("idLattes")
 
-	if idLatttes == "" {
+	if idLattes == "" {
 
 		response := model.Response{
 			Message: "Null IDLattes",
@@ -45,7 +45,7 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 
 	}
 
-	idLattes, err := strconv.Atoi(idLatttes)
+	_, err := strconv.Atoi(idLattes)
 	if err != nil {
 		response := model.Response{
 			Message: "IdLattes Must be a number",
@@ -53,7 +53,7 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(int64(idLattes))
+	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
@@ -73,8 +73,27 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 	var pessoa model.Pessoa
 	err := e.Bind(&pessoa)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Sedxo",err)
 		e.JSON(http.StatusBadRequest, err)
+	}
+
+	idLattes := pessoa.IdLattes
+
+	if idLattes == "" {
+
+		response := model.Response{
+			Message: "Null IDLattes",
+		}
+		return e.JSON(http.StatusBadRequest, response)
+
+	}
+
+	_, err = strconv.Atoi(idLattes)
+	if err != nil {
+		response := model.Response{
+			Message: "IdLattes Must be a number",
+		}
+		return e.JSON(http.StatusBadRequest, response)
 	}
 
 	err = c.PessoaUsecase.CreatePessoa(&pessoa)

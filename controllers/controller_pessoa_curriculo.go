@@ -35,7 +35,7 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	idLattes, err := strconv.Atoi(id)
+	_, err := strconv.Atoi(id)
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
@@ -44,7 +44,7 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 	}
 
 	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(
-		int64(idLattes),
+		id,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -72,7 +72,7 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	idLattes, err := strconv.Atoi(id)
+	_, err := strconv.Atoi(id)
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
@@ -83,7 +83,7 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 	err = e.Bind(&pessoaCurriculo.Curriculo)
 
 	pessoaCurriculo.Pessoa = &model.Pessoa{}
-	pessoaCurriculo.Pessoa.IdLattes = int64(idLattes)
+	pessoaCurriculo.Pessoa.IdLattes = id
 
 	if err != nil {
 		fmt.Println(err)
@@ -96,7 +96,7 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 		e.JSON(http.StatusInternalServerError, err)
 	}
 
-	return e.JSON(http.StatusOK, err)
+	return e.JSON(http.StatusCreated, err)
 }
 
 func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
@@ -109,7 +109,7 @@ func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	idLattes, err := strconv.Atoi(id)
+	_, err := strconv.Atoi(id)
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
@@ -117,7 +117,7 @@ func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	err = pc.PessoaCurriculoUsecase.DeleteCurriculo(int64(idLattes))
+	err = pc.PessoaCurriculoUsecase.DeleteCurriculo(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, err)
@@ -136,7 +136,7 @@ func (pc *ControllerPessoaCurriculo) DeletePessoa(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	idLattes, err := strconv.Atoi(id)
+	_, err := strconv.Atoi(id)
 	if err != nil {
 		response := model.Response{
 			Message: "ID Must be a number",
@@ -144,7 +144,7 @@ func (pc *ControllerPessoaCurriculo) DeletePessoa(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	err = pc.PessoaCurriculoUsecase.DeletePessoa(int64(idLattes))
+	err = pc.PessoaCurriculoUsecase.DeletePessoa(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, err)

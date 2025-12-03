@@ -115,6 +115,8 @@ func (pr *ProducaoRepository) CreateProducao(
 		return nil, err
 	}
 
+	fmt.Println(producao.DataDePublicacao)
+
 	defer query.Close()
 
 	result, err := query.Exec(
@@ -332,15 +334,117 @@ func (pr *ProducaoRepository) CreateAbreviatura(
 	return abreviatura, nil
 }
 
-// func (pr *ProducaoRepository) CheckProducaoHash(hash int64)([]int64, error){
-// 	query := "SELECT "
-// }
+func (pr *ProducaoRepository) GetProducaoBibliograficaCount() (*int64, error) {
+	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao " +
+		"WHERE tp.idTipoDeProducao = 1")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem *int64
+
+	err = query.QueryRow().Scan(contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducaoTecnicaCount() (*int64, error) {
+	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao " +
+		"WHERE tp.idTipoDeProducao = 2")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem *int64
+
+	err = query.QueryRow().Scan(contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducaoPatenteCount() (*int64, error) {
+	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao " +
+		"WHERE tp.idTipoDeProducao = 3")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem *int64
+
+	err = query.QueryRow().Scan(contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducaoOutroCount() (*int64, error) {
+	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+		"INNER JOIN TipoDeProducao tp " +
+		"ON p.idTipo = tp.idTipoDeProducao " +
+		"WHERE tp.idTipoDeProducao = 4")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem *int64
+
+	err = query.QueryRow().Scan(contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducaoCount() (*int64, error) {
+	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem *int64
+
+	err = query.QueryRow().Scan(contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return contagem, nil
+}
 
 // func (pr *ProducaoRepository) UpdateProducao(producao *model.Producao, curriculo *model.Curriculo) error {
 // 	query, err := pr.Connection.Prepare("UPDATE Producao" +
 // 		"SET Autor = ?," +
 // 		"Titulo = ?," +
-// 		"Descricao = ?," +
 // 		"Link = ?," +
 // 		"DataDePublicacao = ?," +
 // 		"TipoId = ? " +

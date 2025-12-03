@@ -54,7 +54,7 @@ func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
 }
 
 func (pu *PessoaUsecase) GetPessoaByIdLattes(
-	idLattes int64,
+	idLattes string,
 ) (*model.Pessoa, error) {
 	pessoa, err := pu.pessoaRepository.GetPessoaByIdLattes(idLattes)
 	if err != nil {
@@ -86,7 +86,7 @@ func (pu *PessoaUsecase) GetPessoaByIdLattes(
 // 	return nil
 // }
 
-func (pu *PessoaUsecase) DeletePessoa(idLattes int64) error {
+func (pu *PessoaUsecase) DeletePessoa(idLattes string) error {
 	err := pu.pessoaRepository.DeletePessoa(idLattes)
 	if err != nil {
 		return err
