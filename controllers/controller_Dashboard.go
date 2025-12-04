@@ -10,25 +10,25 @@ import (
 )
 
 type ControllerDashboard struct {
-	DashboardUsecase *usecase.DashboardUsecase
+	dashboardUsecase *usecase.DashboardUsecase
 }
 
 func NewControllerDashboard(
 	usecase_dashboard *usecase.DashboardUsecase,
 ) ControllerDashboard {
 	return ControllerDashboard{
-		DashboardUsecase: usecase_dashboard,
+		dashboardUsecase: usecase_dashboard,
 	}
 }
 
 func (c *ControllerDashboard) GetRelatorioCompleto(e echo.Context) error {
-	relatorioGeral, err := c.DashboardUsecase.GetRelatorioGeral()
+	relatorioGeral, err := c.dashboardUsecase.GetRelatorioGeral()
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 
-	err = c.DashboardUsecase.ConstructRelatorioAno(relatorioGeral)
+	err = c.dashboardUsecase.ConstructRelatorioAno(relatorioGeral)
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)

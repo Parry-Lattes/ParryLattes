@@ -6,8 +6,8 @@ import (
 )
 
 type DashboardUsecase struct {
-	CurriculoRepository *repository.CurriculoRepository
-	ProducaoRepository  *repository.ProducaoRepository
+	curriculoRepository *repository.CurriculoRepository
+	producaoRepository  *repository.ProducaoRepository
 }
 
 func NewDashboardUsecase(
@@ -15,25 +15,25 @@ func NewDashboardUsecase(
 	producaorepo *repository.ProducaoRepository,
 ) DashboardUsecase {
 	return DashboardUsecase{
-		CurriculoRepository: curriculorepo,
-		ProducaoRepository:  producaorepo,
+		curriculoRepository: curriculorepo,
+		producaoRepository:  producaorepo,
 	}
 }
 
 func (ds *DashboardUsecase) GetRelatorioGeral() (*model.RelatorioGeral, error) {
 	var relatorioGeral *model.RelatorioGeral = &model.RelatorioGeral{}
 	var err error
-	relatorioGeral.TotalCurriculos, err = ds.CurriculoRepository.GetCurriculoCount()
+	relatorioGeral.TotalCurriculos, err = ds.curriculoRepository.GetCurriculoCount()
 	if err != nil {
 		return nil, err
 	}
 
-	relatorioGeral.TotalProducoes, err = ds.ProducaoRepository.GetProducaoCount()
+	relatorioGeral.TotalProducoes, err = ds.producaoRepository.GetProducaoCount()
 	if err != nil {
 		return nil, err
 	}
 
-	relatorioGeral.CurriculosAtualizados, err = ds.CurriculoRepository.GetUpdatedCurriculos()
+	relatorioGeral.CurriculosAtualizados, err = ds.curriculoRepository.GetUpdatedCurriculos()
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,12 @@ func (ds *DashboardUsecase) GetRelatorioGeral() (*model.RelatorioGeral, error) {
 func (ds *DashboardUsecase) ConstructRelatorioAno(
 	relatorioGeral *model.RelatorioGeral,
 ) error {
-	relatorios, err := ds.ProducaoRepository.GetProducoesGroypByAnoTipo()
+	relatorios, err := ds.producaoRepository.GetProducoesGroypByAnoTipo()
 	if err != nil {
 		return err
 	}
 
-	producoesPorAno, err := ds.ProducaoRepository.GetProducoesCountByYear()
+	producoesPorAno, err := ds.producaoRepository.GetProducoesCountByYear()
 
 	var totalGeral int64 = 0
 	for _, value := range producoesPorAno {
@@ -70,7 +70,7 @@ func (ds *DashboardUsecase) ConstructRelatorioAno(
 //
 // 	var relatorioAno []*model.RelatorioAno
 //
-// 	tuplasAnoTipo, err := ds.ProducaoRepository.GetProducoesYearAndType()
+// 	tuplasAnoTipo, err := ds.producaoRepository.GetProducoesYearAndType()
 //
 // 	if err != nil {
 // 		return nil

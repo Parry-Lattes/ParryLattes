@@ -8,9 +8,9 @@ import (
 )
 
 type CurriculoUsecase struct {
-	CurriculoRepository   *repository.CurriculoRepository
-	ProducaoRepository    *repository.ProducaoRepository
-	AbreviaturaRepository *repository.AbreviaturaRepository
+	curriculoRepository   *repository.CurriculoRepository
+	producaoRepository    *repository.ProducaoRepository
+	abreviaturaRepository *repository.AbreviaturaRepository
 }
 
 func NewCurriculoUseCase(
@@ -19,14 +19,14 @@ func NewCurriculoUseCase(
 	abreviaturarepo *repository.AbreviaturaRepository,
 ) CurriculoUsecase {
 	return CurriculoUsecase{
-		CurriculoRepository:   curriculorepo,
-		ProducaoRepository:    producaorepo,
-		AbreviaturaRepository: abreviaturarepo,
+		curriculoRepository:   curriculorepo,
+		producaoRepository:    producaorepo,
+		abreviaturaRepository: abreviaturarepo,
 	}
 }
 
 func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
-	return cu.CurriculoRepository.GetCurriculos()
+	return cu.curriculoRepository.GetCurriculos()
 }
 
 func (cu *CurriculoUsecase) identifyTipo(producao *model.Producao) int64 {
@@ -45,12 +45,12 @@ func (cu *CurriculoUsecase) identifyTipo(producao *model.Producao) int64 {
 func (cu *CurriculoUsecase) GetCurriculoById(
 	idPessoa int64,
 ) (*model.Curriculo, error) {
-	curriculo, err := cu.CurriculoRepository.GetCurriculoById(idPessoa)
+	curriculo, err := cu.curriculoRepository.GetCurriculoById(idPessoa)
 	if err != nil {
 		return nil, err
 	}
 
-	// curriculo.Producoes, err = cu.ProducaoRepository.GetProducaoByIdLattes(
+	// curriculo.Producoes, err = cu.producaoRepository.GetProducaoByIdLattes(
 	// 	curriculo,
 	// )
 	// if err != nil {
@@ -58,7 +58,7 @@ func (cu *CurriculoUsecase) GetCurriculoById(
 	// }
 	//
 	// for _, producao := range curriculo.Producoes {
-	// 	producao.Coautores, err = cu.AbreviaturaRepository.GetCoautoresByIdProducao(
+	// 	producao.Coautores, err = cu.abreviaturaRepository.GetCoautoresByIdProducao(
 	// 		producao.IdProducao,
 	// 	)
 	// 	if err != nil {
@@ -66,7 +66,7 @@ func (cu *CurriculoUsecase) GetCurriculoById(
 	// 	}
 	//
 	// 	for _, coautor := range producao.Coautores {
-	// 		coautor.Abreviatura, err = cu.AbreviaturaRepository.GetAbreviaturaByCoautor(
+	// 		coautor.Abreviatura, err = cu.abreviaturaRepository.GetAbreviaturaByCoautor(
 	// 			coautor,
 	// 		)
 	// 		if err != nil {
@@ -75,7 +75,7 @@ func (cu *CurriculoUsecase) GetCurriculoById(
 	//
 	// 	}
 	//
-	// }
+	// 	// }
 
 	return curriculo, nil
 }
@@ -83,14 +83,14 @@ func (cu *CurriculoUsecase) GetCurriculoById(
 func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 	for _, values := range curriculo.Producoes {
 
-		_, err := cu.ProducaoRepository.GetProducaoByHash(values)
+		_, err := cu.producaoRepository.GetProducaoByHash(values)
 
 		if err == sql.ErrNoRows {
-			cu.ProducaoRepository.CreateProducao(values, curriculo)
+			cu.producaoRepository.CreateProducao(values, curriculo)
 		}
 
 	}
-	err := cu.CurriculoRepository.UpdateCurriculo(curriculo)
+	err := cu.curriculoRepository.UpdateCurriculo(curriculo)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (cu *CurriculoUsecase) UpdateCurriculo(curriculo *model.Curriculo) error {
 func (cu *CurriculoUsecase) DeleteProducaoByIdCurriculo(
 	idCurriculo int64,
 ) error {
-	err := cu.ProducaoRepository.DeleteProducaoByIdCurriculo(idCurriculo)
+	err := cu.producaoRepository.DeleteProducaoByIdCurriculo(idCurriculo)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (cu *CurriculoUsecase) DeleteProducaoByIdCurriculo(
 }
 
 func (cu *CurriculoUsecase) DeleteCurriculoByIdPessoa(idPessoa int64) error {
-	err := cu.CurriculoRepository.DeleteCurriculo(idPessoa)
+	err := cu.curriculoRepository.DeleteCurriculo(idPessoa)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (cu *CurriculoUsecase) DeleteCurriculoByIdPessoa(idPessoa int64) error {
 func (cu *CurriculoUsecase) DeleteCoautoresByIdProducao(
 	idProducao int64,
 ) error {
-	err := cu.AbreviaturaRepository.DeleteCoautoresByIdProducao(idProducao)
+	err := cu.abreviaturaRepository.DeleteCoautoresByIdProducao(idProducao)
 	if err != nil {
 		return err
 	}
@@ -129,8 +129,8 @@ func (cu *CurriculoUsecase) DeleteCoautoresByIdProducao(
 	return nil
 }
 
-// func (cu *CurriculoUsecase) DeleteProducao(producao model.Producao) error {
-// 	err := cu.ProducaoRepository.DeleteProducao(producao.Hash)
+// func (cu *curriculoUsecase) DeleteProducao(producao model.Producao) error {
+// 	err := cu.producaoRepository.DeleteProducao(producao.Hash)
 //
 // 	if err != nil {
 // 		return err

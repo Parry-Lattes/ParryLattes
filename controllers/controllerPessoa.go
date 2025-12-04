@@ -12,19 +12,19 @@ import (
 )
 
 type ControllerPessoa struct {
-	PessoaUsecase *usecase.PessoaUsecase
+	pessoaUsecase *usecase.PessoaUsecase
 }
 
 func NewControllerPessoa(
 	usecase_pessoa *usecase.PessoaUsecase,
 ) ControllerPessoa {
 	return ControllerPessoa{
-		PessoaUsecase: usecase_pessoa,
+		pessoaUsecase: usecase_pessoa,
 	}
-} 
+}
 
 func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
-	pessoas, err := c.PessoaUsecase.GetPessoas()
+	pessoas, err := c.pessoaUsecase.GetPessoas()
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
@@ -53,7 +53,7 @@ func (c *ControllerPessoa) GetPessoaByIdLattes(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	pessoa, err := c.PessoaUsecase.GetPessoaByIdLattes(idLattes)
+	pessoa, err := c.pessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
@@ -73,7 +73,7 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 	var pessoa model.Pessoa
 	err := e.Bind(&pessoa)
 	if err != nil {
-		fmt.Println("Sedxo",err)
+		fmt.Println("Sedxo", err)
 		e.JSON(http.StatusBadRequest, err)
 	}
 
@@ -96,7 +96,7 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	err = c.PessoaUsecase.CreatePessoa(&pessoa)
+	err = c.pessoaUsecase.CreatePessoa(&pessoa)
 	if err != nil {
 		fmt.Println(err)
 		e.JSON(http.StatusInternalServerError, err)
@@ -113,7 +113,7 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 // 		e.JSON(http.StatusBadRequest, err)
 // 	}
 //
-// 	pessoa, err = c.PessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
+// 	pessoa, err = c.pessoaUsecase.GetPessoaByIdLattes(pessoa.IdLattes)
 // 	if err != nil {
 // 		if err == sql.ErrNoRows {
 // 			fmt.Println(err)
@@ -124,7 +124,7 @@ func (c *ControllerPessoa) CreatePessoa(e echo.Context) error {
 // 		return e.JSON(http.StatusInternalServerError, err)
 // 	}
 //
-// 	err = c.PessoaUsecase.UpdatePessoa(pessoa)
+// 	err = c.pessoaUsecase.UpdatePessoa(pessoa)
 // 	if err != nil {
 // 		fmt.Println(err)
 // 		e.JSON(http.StatusInternalServerError, err)

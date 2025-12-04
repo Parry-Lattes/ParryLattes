@@ -13,14 +13,14 @@ import (
 )
 
 type ControllerPessoaCurriculo struct {
-	PessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
+	pessoaCurriculoUsecase *usecase.PessoaCurriculoUsecase
 }
 
 func NewControllerPessoaCurriculo(
 	usecase *usecase.PessoaCurriculoUsecase,
 ) ControllerPessoaCurriculo {
 	return ControllerPessoaCurriculo{
-		PessoaCurriculoUsecase: usecase,
+		pessoaCurriculoUsecase: usecase,
 	}
 }
 
@@ -42,7 +42,7 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	curriculo, err := c.PessoaCurriculoUsecase.GetCurriculoByIdLattes(
+	curriculo, err := c.pessoaCurriculoUsecase.GetCurriculoByIdLattes(
 		id,
 	)
 	if err != nil {
@@ -88,7 +88,7 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, err)
 	}
 
-	err = pc.PessoaCurriculoUsecase.CreateCurriculo(&pessoaCurriculo)
+	err = pc.pessoaCurriculoUsecase.CreateCurriculo(&pessoaCurriculo)
 	if err != nil {
 		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
@@ -115,7 +115,7 @@ func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	err = pc.PessoaCurriculoUsecase.DeleteCurriculo(id)
+	err = pc.pessoaCurriculoUsecase.DeleteCurriculo(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, err)
@@ -143,7 +143,7 @@ func (pc *ControllerPessoaCurriculo) DeletePessoa(e echo.Context) error {
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
-	err = pc.PessoaCurriculoUsecase.DeletePessoa(id)
+	err = pc.pessoaCurriculoUsecase.DeletePessoa(id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, err)
