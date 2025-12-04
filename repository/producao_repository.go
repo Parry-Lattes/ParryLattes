@@ -479,12 +479,10 @@ func (pr *ProducaoRepository) GetProducoesGroypByAnoTipo() (map[int]*model.Relat
 
 	relatorios := make(map[int]*model.RelatorioAno)
 
-	fmt.Println("sexo")
-
 	for rows.Next() {
 		var ano int
 		var tipo int
-		var quantidade int64
+		var quantidade int64 = 0
 
 		err = rows.Scan(&ano, &tipo, &quantidade)
 		if err != nil {
@@ -497,23 +495,18 @@ func (pr *ProducaoRepository) GetProducoesGroypByAnoTipo() (map[int]*model.Relat
 
 		relatorioAno := relatorios[ano]
 
-		// Distribui pelos tipos
 		switch tipo {
 		case 1:
-			relatorioAno.ProducoesBibliograficas = &quantidade
+			relatorioAno.ProducoesBibliograficas = quantidade
 		case 2:
-			relatorioAno.ProducoesTecnicas = &quantidade
+			relatorioAno.ProducoesTecnicas = quantidade
 		case 3:
-			relatorioAno.ProducoesPatente = &quantidade
+			relatorioAno.ProducoesPatente = quantidade
 		case 4:
-			relatorioAno.ProducoesOutro = &quantidade
+			relatorioAno.ProducoesOutro = quantidade
 		}
 
-		// Calcula total
-		if relatorioAno.ProducoesTotal == nil {
-			relatorioAno.ProducoesTotal = new(int64)
-		}
-		*relatorioAno.ProducoesTotal += quantidade
+		relatorioAno.ProducoesTotal += quantidade
 	}
 
 	return relatorios, nil
@@ -548,6 +541,43 @@ func (pr *ProducaoRepository) GetProducaoCountByIdLattes(
 	}
 
 	return contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducoesCountByYear() ([]*model.TupleAnoContagem, error) {
+	query := "SELECT pr.DataDePublicacao AS Ano, COUNT(DISTINCT p.idPessoa) AS Quantidade_Pessoas FROM Pessoa p " +
+		"INNER JOIN Curriculo c ON c.idPessoa = p.idPessoa " +
+		"INNER JOIN CurriculoProducao cp ON cp.idCurriculo = c.idCurriculo " +
+		"INNER JOIN Producao pr ON cp.idProducao = pr.idProducao " +
+		"WHERE pr.DataDePublicacao IS NOT NULL " +
+		"GROUP BY pr.DataDePublicacao " +
+		"ORDER BY Ano DESC"
+
+	rows, err := pr.Connection.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var contagemList []*model.TupleAnoContagem
+
+	for rows.Next() {
+		var contagemObj model.TupleAnoContagem = model.TupleAnoContagem{}
+
+		err = rows.Scan(
+			&contagemObj.Ano,
+			&contagemObj.Contagem,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		contagemList = append(contagemList, &contagemObj)
+	}
+
+	return contagemList, nil
 }
 
 // func (pr *ProducaoRepository) UpdateProducao(producao *model.Producao, curriculo *model.Curriculo) error {

@@ -113,7 +113,6 @@ func (pr *PessoaRepository) GetPessoaByIdLattes(
 		if err == sql.ErrNoRows {
 			return nil, err
 		}
-
 		fmt.Println(err)
 		return nil, err
 	}

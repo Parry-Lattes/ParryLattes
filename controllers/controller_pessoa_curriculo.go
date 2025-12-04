@@ -31,7 +31,6 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 		response := model.Response{
 			Message: "Null ID",
 		}
-
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
@@ -51,10 +50,10 @@ func (c *ControllerPessoaCurriculo) GetCurriculoById(e echo.Context) error {
 			response := model.Response{
 				Message: "Curriculo not found",
 			}
-			e.JSON(http.StatusNotFound, response)
+			return e.JSON(http.StatusNotFound, response)
 		}
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 	return e.JSON(http.StatusOK, curriculo)
 }
@@ -68,7 +67,6 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 		response := model.Response{
 			Message: "Null ID",
 		}
-
 		return e.JSON(http.StatusBadRequest, response)
 	}
 
@@ -87,13 +85,13 @@ func (pc *ControllerPessoaCurriculo) CreateCurriculo(e echo.Context) error {
 
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusBadRequest, err)
+		return e.JSON(http.StatusBadRequest, err)
 	}
 
 	err = pc.PessoaCurriculoUsecase.CreateCurriculo(&pessoaCurriculo)
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	return e.JSON(http.StatusCreated, err)
@@ -122,6 +120,7 @@ func (pc *ControllerPessoaCurriculo) DeleteCurriculo(e echo.Context) error {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, err)
 		}
+		fmt.Println(err)
 		return e.JSON(http.StatusInternalServerError, err)
 	}
 	return e.JSON(http.StatusOK, err)

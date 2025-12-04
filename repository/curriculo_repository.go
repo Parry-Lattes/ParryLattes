@@ -226,6 +226,29 @@ func (cu *CurriculoRepository) DeleteCurriculo(idPessoa int64) error {
 	return nil
 }
 
+func (cu *CurriculoRepository) GetUpdatedCurriculos() (*int64, error) {
+	query, err := cu.Connection.Prepare("SELECT COUNT(*) FROM Curriculo " +
+		"WHERE UltimaAtualizacao >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)")
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem int64
+
+	err = query.QueryRow().Scan(
+		&contagem,
+	)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &contagem, nil
+}
+
 func (cu *CurriculoRepository) UnlinkProducaoCurriculo(
 	curriculo *model.Curriculo,
 	producao *model.Producao,

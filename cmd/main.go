@@ -35,6 +35,7 @@ func main() {
 		&PessoaRepository,
 		&AbreviaturaRepository,
 	)
+
 	pessoaCurriculoUsecase := usecase.NewPessoaCurriculoUsecase(
 		&pessoaUseCase,
 		&curriculoUsecase,

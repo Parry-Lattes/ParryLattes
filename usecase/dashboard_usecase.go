@@ -33,6 +33,11 @@ func (ds *DashboardUsecase) GetRelatorioGeral() (*model.RelatorioGeral, error) {
 		return nil, err
 	}
 
+	relatorioGeral.CurriculosAtualizados, err = ds.CurriculoRepository.GetUpdatedCurriculos()
+	if err != nil {
+		return nil, err
+	}
+
 	return relatorioGeral, nil
 }
 
@@ -44,15 +49,16 @@ func (ds *DashboardUsecase) ConstructRelatorioAno(
 		return err
 	}
 
-	relatorioGeral.Detalhes = relatorios
+	producoesPorAno, err := ds.ProducaoRepository.GetProducoesCountByYear()
 
-	// Calcula o total geral
 	var totalGeral int64 = 0
-	for _, relatorio := range relatorios {
-		if relatorio.ProducoesTotal != nil {
-			totalGeral += *relatorio.ProducoesTotal
-		}
+	for _, value := range producoesPorAno {
+		relatorios[value.Ano].QuantidadeDeContribuintes = value.Contagem
+
+		totalGeral += relatorios[value.Ano].ProducoesTotal
 	}
+
+	relatorioGeral.Detalhes = relatorios
 
 	relatorioGeral.TotalProducoes = &totalGeral
 

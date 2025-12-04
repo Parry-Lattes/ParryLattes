@@ -25,13 +25,13 @@ func (c *ControllerDashboard) GetRelatorioCompleto(e echo.Context) error {
 	relatorioGeral, err := c.DashboardUsecase.GetRelatorioGeral()
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	err = c.DashboardUsecase.ConstructRelatorioAno(relatorioGeral)
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+		return e.JSON(http.StatusInternalServerError, err)
 	}
 
 	return e.JSON(http.StatusOK, relatorioGeral)
