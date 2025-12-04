@@ -31,6 +31,8 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	var producaoList []*model.Producao
 
 	for rows.Next() {
@@ -52,7 +54,6 @@ func (pr *ProducaoRepository) GetProducoes() ([]*model.Producao, error) {
 		producaoList = append(producaoList, &producaoObj)
 	}
 
-	rows.Close()
 	return producaoList, nil
 }
 
@@ -154,6 +155,8 @@ func (pr *ProducaoRepository) GetProducaoTypeId(
 		return 0, nil
 	}
 
+	defer query.Close()
+
 	var idTipoDeProducao int
 
 	err = query.QueryRow(producao.TipoId).Scan(
@@ -167,8 +170,6 @@ func (pr *ProducaoRepository) GetProducaoTypeId(
 		fmt.Println(err)
 		return 0, err
 	}
-
-	query.Close()
 
 	return idTipoDeProducao, nil
 }
@@ -186,6 +187,8 @@ func (pr *ProducaoRepository) GetProducaoByHash(
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	err = rows.Scan(
 		&producao.IdProducao,
 		&producao.Autor,
@@ -198,8 +201,6 @@ func (pr *ProducaoRepository) GetProducaoByHash(
 		fmt.Println(err)
 		return nil, err
 	}
-
-	rows.Close()
 
 	return producao, nil
 }
@@ -300,128 +301,150 @@ func (pr *ProducaoRepository) GetCoautoresById(
 	return coautorList, nil
 }
 
-func (pr *ProducaoRepository) CreateAbreviatura(
-	abreviatura *model.Abreviatura,
-) (*model.Abreviatura, error) {
-	query, err := pr.Connection.Prepare(
-		"INSERT INTO Abreviatura (idPessoa,Abreviatura)" +
-			"VALUES(?,?)",
-	)
-	if err != nil {
-		fmt.Println("Erro ao Preparar query:", err)
-		return nil, err
-	}
+// func (pr *ProducaoRepository) CreateAbreviatura(
+// 	abreviatura *model.Abreviatura,
+// ) (*model.Abreviatura, error) {
+// 	query, err := pr.Connection.Prepare(
+// 		"INSERT INTO Abreviatura (idPessoa,Abreviatura)" +
+// 			"VALUES(?,?)",
+// 	)
+// 	if err != nil {
+// 		fmt.Println("Erro ao Preparar query:", err)
+// 		return nil, err
+// 	}
+//
+// 	defer query.Close()
+//
+// 	result, err := query.Exec(
+// 		abreviatura.IdPessoa,
+// 		abreviatura.IdAbreviatura,
+// 	)
+// 	if err != nil {
+// 		fmt.Println("Erro ao executar query:", err)
+// 		return nil, err
+// 	}
+//
+// 	id, err := result.LastInsertId()
+// 	if err != nil {
+// 		fmt.Println("Erro ao obter último ID:", err)
+// 		return nil, err
+// 	}
+//
+// 	abreviatura.IdAbreviatura = id
+//
+// 	return abreviatura, nil
+// }
 
-	defer query.Close()
-
-	result, err := query.Exec(
-		abreviatura.IdPessoa,
-		abreviatura.IdAbreviatura,
-	)
-	if err != nil {
-		fmt.Println("Erro ao executar query:", err)
-		return nil, err
-	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		fmt.Println("Erro ao obter último ID:", err)
-		return nil, err
-	}
-
-	abreviatura.IdAbreviatura = id
-
-	return abreviatura, nil
-}
-
-func (pr *ProducaoRepository) GetProducaoBibliograficaCount() (*int64, error) {
-	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
-		"INNER JOIN TipoDeProducao tp " +
-		"ON p.idTipo = tp.idTipoDeProducao " +
-		"WHERE tp.idTipoDeProducao = 1")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer query.Close()
-
-	var contagem *int64
-
-	err = query.QueryRow().Scan(contagem)
-	if err != nil {
-		return nil, err
-	}
-
-	return contagem, nil
-}
-
-func (pr *ProducaoRepository) GetProducaoTecnicaCount() (*int64, error) {
-	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
-		"INNER JOIN TipoDeProducao tp " +
-		"ON p.idTipo = tp.idTipoDeProducao " +
-		"WHERE tp.idTipoDeProducao = 2")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer query.Close()
-
-	var contagem *int64
-
-	err = query.QueryRow().Scan(contagem)
-	if err != nil {
-		return nil, err
-	}
-
-	return contagem, nil
-}
-
-func (pr *ProducaoRepository) GetProducaoPatenteCount() (*int64, error) {
-	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
-		"INNER JOIN TipoDeProducao tp " +
-		"ON p.idTipo = tp.idTipoDeProducao " +
-		"WHERE tp.idTipoDeProducao = 3")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer query.Close()
-
-	var contagem *int64
-
-	err = query.QueryRow().Scan(contagem)
-	if err != nil {
-		return nil, err
-	}
-
-	return contagem, nil
-}
-
-func (pr *ProducaoRepository) GetProducaoOutroCount() (*int64, error) {
-	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
-		"INNER JOIN TipoDeProducao tp " +
-		"ON p.idTipo = tp.idTipoDeProducao " +
-		"WHERE tp.idTipoDeProducao = 4")
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	defer query.Close()
-
-	var contagem *int64
-
-	err = query.QueryRow().Scan(contagem)
-	if err != nil {
-		return nil, err
-	}
-
-	return contagem, nil
-}
-
+// func (pr *ProducaoRepository) GetProducaoBibliograficaCount(
+//
+//	ano int,
+//
+//	) (*int64, error) {
+//		query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+//			"INNER JOIN TipoDeProducao tp " +
+//			"ON p.idTipo = tp.idTipoDeProducao " +
+//			"WHERE tp.idTipoDeProducao = 1 " +
+//			"AND p.DataDePublicacao = ?")
+//		if err != nil {
+//			fmt.Println(err)
+//			return nil, err
+//		}
+//
+//		defer query.Close()
+//
+//		var contagem *int64
+//
+//		err = query.QueryRow(ano).Scan(contagem)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		return contagem, nil
+//	}
+//
+// func (pr *ProducaoRepository) GetProducaoTecnicaCountByAno(
+//
+//	ano int,
+//
+//	) (*int64, error) {
+//		query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+//			"INNER JOIN TipoDeProducao tp " +
+//			"ON p.idTipo = tp.idTipoDeProducao " +
+//			"WHERE tp.idTipoDeProducao = 2 " +
+//			"AND p.DataDePublicacao = ?")
+//		if err != nil {
+//			fmt.Println(err)
+//			return nil, err
+//		}
+//
+//		defer query.Close()
+//
+//		var contagem *int64
+//
+//		err = query.QueryRow(ano).Scan(contagem)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		return contagem, nil
+//	}
+//
+// func (pr *ProducaoRepository) GetProducaoPatenteCountByAno(
+//
+//	ano int,
+//
+//	) (*int64, error) {
+//		query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+//			"INNER JOIN TipoDeProducao tp " +
+//			"ON p.idTipo = tp.idTipoDeProducao " +
+//			"WHERE tp.idTipoDeProducao = 3 " +
+//			"AND p.DataDePublicacao = ?")
+//		if err != nil {
+//			fmt.Println(err)
+//			return nil, err
+//		}
+//
+//		defer query.Close()
+//
+//		var contagem *int64
+//
+//		err = query.QueryRow(ano).Scan(contagem)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		return contagem, nil
+//	}
+//
+// func (pr *ProducaoRepository) GetProducaoOutroCountByANo(
+//
+//	ano int,
+//
+//	) (*int64, error) {
+//		query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p " +
+//			"INNER JOIN TipoDeProducao tp " +
+//			"ON p.idTipo = tp.idTipoDeProducao " +
+//			"WHERE tp.idTipoDeProducao = 4 " +
+//			"AND p.DataDePublicacao = ?")
+//		if err != nil {
+//			fmt.Println(err)
+//			return nil, err
+//		}
+//
+//		defer query.Close()
+//
+//		var contagem *int64
+//
+//		err = query.QueryRow(ano).Scan(contagem)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		return contagem, nil
+//	}
+//
+// func (pr *ProducaoRepository) GetProducoesYearAndType() ([]*model.TupleAnoTipo, error) {
+// }
 func (pr *ProducaoRepository) GetProducaoCount() (*int64, error) {
 	query, err := pr.Connection.Prepare("SELECT COUNT(*) FROM Producao p")
 	if err != nil {
@@ -431,10 +454,96 @@ func (pr *ProducaoRepository) GetProducaoCount() (*int64, error) {
 
 	defer query.Close()
 
+	var contagem int64
+
+	err = query.QueryRow().Scan(&contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return &contagem, nil
+}
+
+func (pr *ProducaoRepository) GetProducoesGroypByAnoTipo() (map[int]*model.RelatorioAno, error) {
+	query := "SELECT p.DataDePublicacao as ano, p.idTipo, COUNT(*) as quantidade " +
+		"FROM Producao p " +
+		"WHERE p.DataDePublicacao IS NOT NULL " +
+		"GROUP BY p.DataDePublicacao, p.idTipo " +
+		"ORDER BY ano DESC"
+
+	rows, err := pr.Connection.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	relatorios := make(map[int]*model.RelatorioAno)
+
+	fmt.Println("sexo")
+
+	for rows.Next() {
+		var ano int
+		var tipo int
+		var quantidade int64
+
+		err = rows.Scan(&ano, &tipo, &quantidade)
+		if err != nil {
+			return nil, err
+		}
+
+		if _, exists := relatorios[ano]; !exists {
+			relatorios[ano] = &model.RelatorioAno{}
+		}
+
+		relatorioAno := relatorios[ano]
+
+		// Distribui pelos tipos
+		switch tipo {
+		case 1:
+			relatorioAno.ProducoesBibliograficas = &quantidade
+		case 2:
+			relatorioAno.ProducoesTecnicas = &quantidade
+		case 3:
+			relatorioAno.ProducoesPatente = &quantidade
+		case 4:
+			relatorioAno.ProducoesOutro = &quantidade
+		}
+
+		// Calcula total
+		if relatorioAno.ProducoesTotal == nil {
+			relatorioAno.ProducoesTotal = new(int64)
+		}
+		*relatorioAno.ProducoesTotal += quantidade
+	}
+
+	return relatorios, nil
+}
+
+func (pr *ProducaoRepository) GetProducaoCountByIdLattes(
+	idLattes string,
+) (*int64, error) {
+	query := "SELECT COUNT(*) FROM Producao p " +
+		"INNER JOIN CurriculoProducao cp " +
+		"ON cp.idProducao = p.idProducao " +
+		"INNER JOIN Curriculo c " +
+		"ON c.idCurriculo = cp.idCurriculo " +
+		"INNER JOIN Pessoa ps " +
+		"ON ps.idPessoa = c.idPessoa " +
+		"WHERE ps.idLattes = ?"
+
+	rows, err := pr.Connection.Query(query, idLattes)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
 	var contagem *int64
 
-	err = query.QueryRow().Scan(contagem)
+	err = rows.Scan(
+		contagem,
+	)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

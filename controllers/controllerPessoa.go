@@ -21,7 +21,7 @@ func NewControllerPessoa(
 	return ControllerPessoa{
 		PessoaUsecase: usecase_pessoa,
 	}
-}
+} 
 
 func (c *ControllerPessoa) GetPessoas(e echo.Context) error {
 	pessoas, err := c.PessoaUsecase.GetPessoas()

@@ -23,7 +23,7 @@ func (c *ControllerCurriculo) GetCurriculos(e echo.Context) error {
 	curriculos, err := c.CurriculoUsecase.GetCurriculos()
 	if err != nil {
 		fmt.Println(err)
-		e.JSON(http.StatusInternalServerError, err)
+	  e.JSON(http.StatusInternalServerError, err)
 	}
 
 	return e.JSON(http.StatusOK, curriculos)

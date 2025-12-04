@@ -251,3 +251,21 @@ func (cu *CurriculoRepository) UnlinkProducaoCurriculo(
 
 	return nil
 }
+
+func (cu *CurriculoRepository) GetCurriculoCount() (*int64, error) {
+	query, err := cu.Connection.Prepare("SELECT COUNT(*) FROM Curriculo")
+	if err != nil {
+		return nil, err
+	}
+
+	defer query.Close()
+
+	var contagem int64
+
+	err = query.QueryRow().Scan(&contagem)
+	if err != nil {
+		return nil, err
+	}
+
+	return &contagem, nil
+}

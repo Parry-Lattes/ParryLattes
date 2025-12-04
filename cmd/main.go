@@ -40,27 +40,48 @@ func main() {
 		&curriculoUsecase,
 	)
 
+	dashboardUsecase := usecase.NewDashboardUsecase(
+		&CurriculoRepository,
+		&ProducaoRepository,
+	)
+
 	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
 	controllerCurriculo := controllers.NewControllerCurriculo(&curriculoUsecase)
 	controllerPessoaCurriculo := controllers.NewControllerPessoaCurriculo(
 		&pessoaCurriculoUsecase,
 	)
+	controllerDashboard := controllers.NewControllerDashboard(&dashboardUsecase)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET("/pessoa", controllerPessoa.GetPessoas)
-	e.GET("/pessoa/:idLattes", controllerPessoa.GetPessoaByIdLattes)
-	e.POST("/pessoa", controllerPessoa.CreatePessoa)
+	e.GET(
+		"/pessoa",
+		controllerPessoa.GetPessoas,
+	)
+	e.GET(
+		"/pessoa/:idLattes",
+		controllerPessoa.GetPessoaByIdLattes,
+	)
+	e.POST(
+		"/pessoa",
+		controllerPessoa.CreatePessoa,
+	)
 	// e.PUT("/pessoa", controllerPessoa.UpdatePessoa)
-	e.DELETE("/pessoa/:idLattes", controllerPessoaCurriculo.DeletePessoa)
+	e.DELETE(
+		"/pessoa/:idLattes",
+		controllerPessoaCurriculo.DeletePessoa,
+	)
 
 	e.GET(
 		"/pessoa/:idLattes/curriculo",
 		controllerPessoaCurriculo.GetCurriculoById,
 	)
-	e.GET("/curriculo", controllerCurriculo.GetCurriculos)
+	e.GET(
+		"/curriculo",
+		controllerCurriculo.GetCurriculos,
+	)
 	e.POST(
 		"/pessoa/:idLattes/curriculo",
 		controllerPessoaCurriculo.CreateCurriculo,
@@ -71,5 +92,8 @@ func main() {
 		controllerPessoaCurriculo.DeleteCurriculo,
 	)
 
+	e.GET(
+		"/dashboard", controllerDashboard.GetRelatorioCompleto,
+	)
 	e.Logger.Fatal(e.Start(":1323"))
 }
