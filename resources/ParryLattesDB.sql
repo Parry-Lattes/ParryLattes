@@ -146,7 +146,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Producao` (
   `idProducao` INT NOT NULL AUTO_INCREMENT,
   `idTipo` INT NOT NULL,
   `Autor` VARCHAR(45) NOT NULL,
-  `Titulo` VARCHAR(200) NOT NULL,
   `DataDePublicacao` YEAR(4) NOT NULL,
   `Hash` VARCHAR(1) NULL,
   PRIMARY KEY (`idProducao`, `idTipo`),
