@@ -42,3 +42,8 @@ type Abreviatura struct {
 	IdPessoa      *int64 `json:"-"` // O Ponteiro é necessário para passar NULL ao DB caso a abreviatura seja de um coautor e não de uma pessoa
 	Abreviatura   string `json:"abreviatura"`
 }
+
+type Login struct {
+	Email string `json:"email"`
+	Senha string `json:"senha"`
+}
