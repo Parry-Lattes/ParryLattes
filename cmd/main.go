@@ -1,15 +1,30 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
 	"net/http"
+	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"parry_end/controllers"
 	"parry_end/db"
+	"parry_end/model"
 	"parry_end/repository"
 	"parry_end/usecase"
 )
+
+func generateToken(length int) string {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		fmt.Println("Error generating token")
+	}
+
+	return base64.URLEncoding.EncodeToString(bytes)
+}
 
 func main() {
 	e := echo.New()
@@ -53,48 +68,53 @@ func main() {
 	)
 	controllerDashboard := controllers.NewControllerDashboard(&dashboardUsecase)
 
-	e.GET("/", func(c echo.Context) error {
+
+
+	auth := e.Group("/v1")
+
+	auth.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
 	e.GET(
+	routes.GET(
 		"/pessoa",
 		controllerPessoa.GetPessoas,
 	)
-	e.GET(
+	routes.GET(
 		"/pessoa/:idLattes",
 		controllerPessoa.GetPessoaByIdLattes,
 	)
-	e.POST(
+	routes.POST(
 		"/pessoa",
 		controllerPessoa.CreatePessoa,
 	)
-	// e.PUT("/pessoa", controllerPessoa.UpdatePessoa)
-	e.DELETE(
+	// routes.PUT("/pessoa", controllerPessoa.UpdatePessoa)
+	routes.DELETE(
 		"/pessoa/:idLattes",
 		controllerPessoaCurriculo.DeletePessoa,
 	)
 
-	e.GET(
+	routes.GET(
 		"/pessoa/:idLattes/curriculo",
 		controllerPessoaCurriculo.GetCurriculoById,
 	)
-	e.GET(
-		"/curriculo",
-		controllerCurriculo.GetCurriculos,
-	)
-	e.POST(
+	routes.POST(
 		"/pessoa/:idLattes/curriculo",
 		controllerPessoaCurriculo.CreateCurriculo,
 	)
-	// e.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
-	e.DELETE(
+	// routes.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
+	routes.DELETE(
 		"/pessoa/:idLattes/curriculo",
 		controllerPessoaCurriculo.DeleteCurriculo,
 	)
 
-	e.GET(
-		"/dashboard", controllerDashboard.GetRelatorioCompleto,
+	routes.GET(
+		"/curriculo",
+		controllerCurriculo.GetCurriculos,
 	)
+
+	routes.GET("/dashboard", controllerDashboard.GetRelatorioCompleto)
+
 	e.Logger.Fatal(e.Start(":1323"))
 }
