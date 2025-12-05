@@ -101,7 +101,7 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 
 	for _, value := range curriculo.Producoes {
 		value.Coautores, err = cu.curriculoUsecase.abreviaturaRepository.GetCoautoresByIdProducao(
-			curriculo.IdCurriculo,
+			value.IdProducao,
 		)
 		if err != nil {
 			return nil, err
