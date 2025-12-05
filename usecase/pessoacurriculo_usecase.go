@@ -38,7 +38,7 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
-		value.TipoId = cu.curriculoUsecase.identifyTipo(value)
+		value.TipoId = cu.curriculoUsecase.identifyTipoProducao(value)
 
 		Producao, err := cu.curriculoUsecase.producaoRepository.CreateProducao(
 			value,
