@@ -76,7 +76,49 @@ func main() {
 		return c.String(http.StatusOK, "Sexo")
 	})
 
-	e.GET(
+	auth.POST("/login", func(e echo.Context) error {
+		var login model.Login
+		err := e.Bind(&login)
+		if err != nil {
+			response := model.Response{
+				Message: "Body mal-formed!",
+			}
+			return e.JSON(http.StatusBadRequest, response)
+		}
+
+		sessionToken := generateToken(32)
+		sessionCookie := &http.Cookie{
+			Name:     "session_token",
+			Value:    sessionToken,
+			Expires:  time.Now().Add(24 * time.Hour),
+			HttpOnly: true,
+			Secure:   true,
+		}
+		e.SetCookie(sessionCookie)
+
+		csrfToken := generateToken(32)
+		csrfCookie := &http.Cookie{
+			Name:     "csrf_token",
+			Value:    csrfToken,
+			Expires:  time.Now().Add(24 * time.Hour),
+			HttpOnly: false,
+		}
+		e.SetCookie(csrfCookie)
+
+		return e.NoContent(http.StatusOK)
+	})
+
+	routes := e.Group("", func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			return c.String(http.StatusOK, "Sexo")
+		}
+	})
+
+	routes.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		ContextKey: "csrf_token",
+		CookieName: "csrf_cookie",
+	}))
+
 	routes.GET(
 		"/pessoa",
 		controllerPessoa.GetPessoas,
