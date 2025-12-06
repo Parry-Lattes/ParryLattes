@@ -44,6 +44,16 @@ type Abreviatura struct {
 }
 
 type Login struct {
-	Email string `json:"email"`
-	Senha string `json:"senha"`
+	IdLogin       int64  `json:"-"`
+	IdCoordenador int64  `json:"id_coordenador"`
+	Email         string `json:"email"`
+	Senha         string `json:"senha"`
+}
+
+// Não precisa de marcação json, já que nunca será utilizado para retornar dados diretamente.
+type Sessao struct {
+	IdSessao    int64
+	IdLogin     int64
+	TokenSessao string
+	TokenCSRF   string
 }

@@ -1,44 +1,38 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 
 	"parry_end/controllers"
 	"parry_end/db"
-	"parry_end/model"
+	"parry_end/middlewares"
 	"parry_end/repository"
 	"parry_end/usecase"
 )
 
-func generateToken(length int) string {
-	bytes := make([]byte, length)
-	if _, err := rand.Read(bytes); err != nil {
-		fmt.Println("Error generating token")
-	}
-
-	return base64.URLEncoding.EncodeToString(bytes)
-}
-
 func main() {
-	e := echo.New()
+	engine := echo.New()
 	err := db.ConnectDB()
 	if err != nil {
 		panic(err)
 	}
+	defer db.CloseDB()
 
 	dbConnection := db.GetDBHandle()
 
+	SessaoRepository := repository.NewSessaoRepository(dbConnection)
+	LoginRepository := repository.NewLoginRepository(dbConnection)
 	PessoaRepository := repository.NewPessoaRepository(dbConnection)
 	CurriculoRepository := repository.NewCurriculoRepository(dbConnection)
 	ProducaoRepository := repository.NewProducaoRepository(dbConnection)
 	AbreviaturaRepository := repository.NewAbreviaturaRepository(dbConnection)
+
+	loginUsecase := usecase.NewLoginUsecase(
+		&LoginRepository,
+		&SessaoRepository,
+	)
 
 	curriculoUsecase := usecase.NewCurriculoUseCase(
 		&CurriculoRepository,
@@ -61,6 +55,9 @@ func main() {
 		&ProducaoRepository,
 	)
 
+	authMiddleware := middlewares.NewAuthMiddleware(&loginUsecase)
+
+	controllerLogin := controllers.NewControllerLogin(&loginUsecase)
 	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
 	controllerCurriculo := controllers.NewControllerCurriculo(&curriculoUsecase)
 	controllerPessoaCurriculo := controllers.NewControllerPessoaCurriculo(
@@ -68,95 +65,58 @@ func main() {
 	)
 	controllerDashboard := controllers.NewControllerDashboard(&dashboardUsecase)
 
+	routes := engine.Group("/v1")
 
-
-	auth := e.Group("/v1")
-
-	auth.GET("/", func(c echo.Context) error {
+	routes.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
+	// auth.Use()
 
-	auth.POST("/login", func(e echo.Context) error {
-		var login model.Login
-		err := e.Bind(&login)
-		if err != nil {
-			response := model.Response{
-				Message: "Body mal-formed!",
-			}
-			return e.JSON(http.StatusBadRequest, response)
-		}
+	routes.POST("/login", controllerLogin.LoginUser)
 
-		sessionToken := generateToken(32)
-		sessionCookie := &http.Cookie{
-			Name:     "session_token",
-			Value:    sessionToken,
-			Expires:  time.Now().Add(24 * time.Hour),
-			HttpOnly: true,
-			Secure:   true,
-		}
-		e.SetCookie(sessionCookie)
+	protected := routes.Group("")
 
-		csrfToken := generateToken(32)
-		csrfCookie := &http.Cookie{
-			Name:     "csrf_token",
-			Value:    csrfToken,
-			Expires:  time.Now().Add(24 * time.Hour),
-			HttpOnly: false,
-		}
-		e.SetCookie(csrfCookie)
+	protected.Use(authMiddleware.CheckIfCSRFTokenExists)
+	protected.Use(authMiddleware.CheckIfSessionIsValid)
 
-		return e.NoContent(http.StatusOK)
-	})
-
-	routes := e.Group("", func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			return c.String(http.StatusOK, "Sexo")
-		}
-	})
-
-	routes.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		ContextKey: "csrf_token",
-		CookieName: "csrf_cookie",
-	}))
-
-	routes.GET(
-		"/pessoa",
+	protected.GET(
+		"/pessoas",
 		controllerPessoa.GetPessoas,
 	)
-	routes.GET(
-		"/pessoa/:idLattes",
+	protected.GET(
+		"/pessoas/:idLattes",
 		controllerPessoa.GetPessoaByIdLattes,
 	)
-	routes.POST(
-		"/pessoa",
+	protected.POST(
+		"/pessoas",
 		controllerPessoa.CreatePessoa,
 	)
-	// routes.PUT("/pessoa", controllerPessoa.UpdatePessoa)
-	routes.DELETE(
-		"/pessoa/:idLattes",
+	// routes.PUT("/pessoas", controllerPessoa.UpdatePessoa)
+	protected.DELETE(
+		"/pessoas/:idLattes",
 		controllerPessoaCurriculo.DeletePessoa,
 	)
 
-	routes.GET(
-		"/pessoa/:idLattes/curriculo",
+	protected.GET(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.GetCurriculoById,
 	)
-	routes.POST(
-		"/pessoa/:idLattes/curriculo",
+	protected.POST(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.CreateCurriculo,
 	)
-	// routes.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
-	routes.DELETE(
-		"/pessoa/:idLattes/curriculo",
+	// routes.PUT("/pessoas/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
+	protected.DELETE(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.DeleteCurriculo,
 	)
 
-	routes.GET(
-		"/curriculo",
+	protected.GET(
+		"/curriculos",
 		controllerCurriculo.GetCurriculos,
 	)
 
-	routes.GET("/dashboard", controllerDashboard.GetRelatorioCompleto)
+	protected.GET("/dashboard", controllerDashboard.GetRelatorioCompleto)
 
-	e.Logger.Fatal(e.Start(":1323"))
+	engine.Logger.Fatal(engine.Start(":1323"))
 }

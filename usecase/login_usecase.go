@@ -1,0 +1,88 @@
+package usecase
+
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+	"parry_end/model"
+	. "parry_end/repository"
+)
+
+var ErrNoLoginFound = errors.New("O login não está cadastrado no sistema!")
+var ErrIncorrectPassword = errors.New("A senha enviada está incorreta.")
+var ErrAlreadyExists = errors.New("Sessão já existe no banco de dados!")
+
+type LoginUsecase struct {
+	loginRepository  *LoginRepository
+	sessaoRepository *SessaoRepository
+}
+
+func NewLoginUsecase(
+	loginRepo *LoginRepository,
+	sessaoRepo *SessaoRepository,
+) LoginUsecase {
+	return LoginUsecase{
+		loginRepository:  loginRepo,
+		sessaoRepository: sessaoRepo,
+	}
+}
+
+func (lu *LoginUsecase) CheckIfIsLoggedIn(sessao *model.Sessao) (bool, error) {
+	exists, err := lu.sessaoRepository.SessaoExists(sessao)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func (lu *LoginUsecase) LogUserIn(login *model.Login, sessao *model.Sessao) error {
+	exists, err := lu.sessaoRepository.SessaoExists(sessao)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if exists {
+		fmt.Println("Sessão já existe no banco de dados!")
+		return ErrAlreadyExists
+	}
+
+	dbLogin, err := lu.loginRepository.GetLogin(login)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrNoLoginFound
+		}
+
+		fmt.Println(err)
+		return err
+	}
+
+	if login.Senha != dbLogin.Senha {
+		return ErrIncorrectPassword
+	}
+
+	novaSessao := model.Sessao{
+		IdLogin:     dbLogin.IdLogin,
+		TokenSessao: sessao.TokenSessao,
+		TokenCSRF:   sessao.TokenCSRF,
+	}
+
+	// Deletar a sessão já existente no banco se existir.
+	sessaoExistente, err := lu.sessaoRepository.GetSessaoByLogin(dbLogin)
+	if err != nil {
+		return err
+	}
+	err = lu.sessaoRepository.DeleteSessaoByTokens(sessaoExistente)
+	if err != nil {
+		return err
+	}
+
+	// E aí cadastrar a nova sessão no banco
+	err = lu.sessaoRepository.RegisterSessao(&novaSessao)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
