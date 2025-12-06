@@ -9,10 +9,12 @@ services:
     volumes:
       - .:/backend
     depends_on:
-      database:
-        condition: service_healthy
-        required: true
-        restart: true
+      - database
+    # depends_on:
+      # database:
+      #   condition: service_healthy
+      #   required: true
+      #   restart: true
     
   database:
     image: docker.io/mysql:8.0
@@ -26,12 +28,12 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=mydb
-    healthcheck:  
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 5s        # Check every 5 seconds  
-      timeout: 5s         # Fail if command takes >5s  
-      retries: 5          # Mark as unhealthy after 5 failures  
-      start_period: 10s   # Wait 10s before first check (MySQL needs time to start)  
+    # healthcheck:  
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+    #   interval: 5s        # Check every 5 seconds  
+    #   timeout: 5s         # Fail if command takes >5s  
+    #   retries: 5          # Mark as unhealthy after 5 failures  
+    #   start_period: 10s   # Wait 10s before first check (MySQL needs time to start)  
   
   swagger:
     image: docker.swagger.io/swaggerapi/swagger-ui:latest
