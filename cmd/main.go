@@ -3,27 +3,36 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	"parry_end/controllers"
 	"parry_end/db"
+	"parry_end/middlewares"
 	"parry_end/repository"
 	"parry_end/usecase"
 )
 
 func main() {
-	e := echo.New()
+	engine := echo.New()
 	err := db.ConnectDB()
 	if err != nil {
 		panic(err)
 	}
+	defer db.CloseDB()
 
 	dbConnection := db.GetDBHandle()
 
+	SessaoRepository := repository.NewSessaoRepository(dbConnection)
+	LoginRepository := repository.NewLoginRepository(dbConnection)
 	PessoaRepository := repository.NewPessoaRepository(dbConnection)
 	CurriculoRepository := repository.NewCurriculoRepository(dbConnection)
 	ProducaoRepository := repository.NewProducaoRepository(dbConnection)
 	AbreviaturaRepository := repository.NewAbreviaturaRepository(dbConnection)
+
+	loginUsecase := usecase.NewLoginUsecase(
+		&LoginRepository,
+		&SessaoRepository,
+	)
 
 	curriculoUsecase := usecase.NewCurriculoUseCase(
 		&CurriculoRepository,
@@ -46,6 +55,9 @@ func main() {
 		&ProducaoRepository,
 	)
 
+	authMiddleware := middlewares.NewAuthMiddleware(&loginUsecase)
+
+	controllerLogin := controllers.NewControllerLogin(&loginUsecase)
 	controllerPessoa := controllers.NewControllerPessoa(&pessoaUseCase)
 	controllerCurriculo := controllers.NewControllerCurriculo(&curriculoUsecase)
 	controllerPessoaCurriculo := controllers.NewControllerPessoaCurriculo(
@@ -53,48 +65,58 @@ func main() {
 	)
 	controllerDashboard := controllers.NewControllerDashboard(&dashboardUsecase)
 
-	e.GET("/", func(c echo.Context) error {
+	routes := engine.Group("/v1")
+
+	routes.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Sexo")
 	})
+	// auth.Use()
 
-	e.GET(
-		"/pessoa",
+	routes.POST("/login", controllerLogin.LoginUser)
+
+	protected := routes.Group("")
+
+	protected.Use(authMiddleware.CheckIfCSRFTokenExists)
+	protected.Use(authMiddleware.CheckIfSessionIsValid)
+
+	protected.GET(
+		"/pessoas",
 		controllerPessoa.GetPessoas,
 	)
-	e.GET(
-		"/pessoa/:idLattes",
+	protected.GET(
+		"/pessoas/:idLattes",
 		controllerPessoa.GetPessoaByIdLattes,
 	)
-	e.POST(
-		"/pessoa",
+	protected.POST(
+		"/pessoas",
 		controllerPessoa.CreatePessoa,
 	)
-	// e.PUT("/pessoa", controllerPessoa.UpdatePessoa)
-	e.DELETE(
-		"/pessoa/:idLattes",
+	// routes.PUT("/pessoas", controllerPessoa.UpdatePessoa)
+	protected.DELETE(
+		"/pessoas/:idLattes",
 		controllerPessoaCurriculo.DeletePessoa,
 	)
 
-	e.GET(
-		"/pessoa/:idLattes/curriculo",
+	protected.GET(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.GetCurriculoById,
 	)
-	e.GET(
-		"/curriculo",
-		controllerCurriculo.GetCurriculos,
-	)
-	e.POST(
-		"/pessoa/:idLattes/curriculo",
+	protected.POST(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.CreateCurriculo,
 	)
-	// e.PUT("/pessoa/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
-	e.DELETE(
-		"/pessoa/:idLattes/curriculo",
+	// routes.PUT("/pessoas/:idLattes/curriculo", controllerCurriculo.UpdateCurriculo)
+	protected.DELETE(
+		"/pessoas/:idLattes/curriculo",
 		controllerPessoaCurriculo.DeleteCurriculo,
 	)
 
-	e.GET(
-		"/dashboard", controllerDashboard.GetRelatorioCompleto,
+	protected.GET(
+		"/curriculos",
+		controllerCurriculo.GetCurriculos,
 	)
-	e.Logger.Fatal(e.Start(":1323"))
+
+	protected.GET("/dashboard", controllerDashboard.GetRelatorioCompleto)
+
+	engine.Logger.Fatal(engine.Start(":1323"))
 }

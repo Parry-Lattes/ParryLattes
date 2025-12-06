@@ -9,7 +9,7 @@ type Pessoa struct {
 	IdPessoa      int64          `json:"-"`
 	Nome          string         `json:"nome"`
 	IdLattes      string         `json:"id_lattes"`
-	Abreviaturas  []*Abreviatura `json:"abreviaturas"`
+	Abreviaturas  []*Abreviatura `json:"abreviaturas,omitempty"`
 	Nacionalidade string         `json:"nacionalidade"`
 }
 
@@ -41,4 +41,19 @@ type Abreviatura struct {
 	IdAbreviatura int64  `json:"-"`
 	IdPessoa      *int64 `json:"-"` // O Ponteiro é necessário para passar NULL ao DB caso a abreviatura seja de um coautor e não de uma pessoa
 	Abreviatura   string `json:"abreviatura"`
+}
+
+type Login struct {
+	IdLogin       int64  `json:"-"`
+	IdCoordenador int64  `json:"id_coordenador"`
+	Email         string `json:"email"`
+	Senha         string `json:"senha"`
+}
+
+// Não precisa de marcação json, já que nunca será utilizado para retornar dados diretamente.
+type Sessao struct {
+	IdSessao    int64
+	IdLogin     int64
+	TokenSessao string
+	TokenCSRF   string
 }

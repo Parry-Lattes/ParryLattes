@@ -29,7 +29,7 @@ func (cu *CurriculoUsecase) GetCurriculos() ([]*model.Curriculo, error) {
 	return cu.curriculoRepository.GetCurriculos()
 }
 
-func (cu *CurriculoUsecase) identifyTipo(producao *model.Producao) int64 {
+func (cu *CurriculoUsecase) identifyTipoProducao(producao *model.Producao) int64 {
 	switch producao.Tipo {
 	case "Bibliográfica":
 		return 1
