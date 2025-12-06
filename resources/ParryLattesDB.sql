@@ -226,6 +226,17 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Abreviatura` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `mydb`.`Sessao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`Sessao` (
+  `idSessao` INT NOT NULL AUTO_INCREMENT,
+  `TokenSessao` VARCHAR(32) NOT NULL,
+  `TokenCsrf` VARCHAR(32) NOT NULL,
+  PRIMARY KEY (`idSessao`),
+  UNIQUE KEY `idSessao` (`idSessao`)
+) ENGINE = InnoDB;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS
