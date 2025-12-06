@@ -4,13 +4,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"parry_end/model"
 	. "parry_end/repository"
 )
 
-var ErrNoLoginFound = errors.New("O login não está cadastrado no sistema!")
-var ErrIncorrectPassword = errors.New("A senha enviada está incorreta.")
-var ErrAlreadyExists = errors.New("Sessão já existe no banco de dados!")
+var (
+	ErrNoLoginFound      = errors.New("O login não está cadastrado no sistema!")
+	ErrIncorrectPassword = errors.New("A senha enviada está incorreta.")
+	ErrAlreadyExists     = errors.New("Sessão já existe no banco de dados!")
+)
 
 type LoginUsecase struct {
 	loginRepository  *LoginRepository
@@ -36,17 +39,21 @@ func (lu *LoginUsecase) CheckIfIsLoggedIn(sessao *model.Sessao) (bool, error) {
 	return exists, nil
 }
 
-func (lu *LoginUsecase) LogUserIn(login *model.Login, sessao *model.Sessao) error {
-	exists, err := lu.sessaoRepository.SessaoExists(sessao)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
+func (lu *LoginUsecase) LogUserIn(
+	login *model.Login,
+	sessao *model.Sessao,
+) error {
+	// exists, err := lu.sessaoRepository.SessaoExists(sessao)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return err
+	// }
 
-	if exists {
-		fmt.Println("Sessão já existe no banco de dados!")
-		return ErrAlreadyExists
-	}
+	// if exists {
+	// 	fmt.Println("Sessão já existe no banco de dados!")
+	// 	return ErrAlreadyExists
+	// }
+	//
 
 	dbLogin, err := lu.loginRepository.GetLogin(login)
 	if err != nil {
@@ -71,13 +78,17 @@ func (lu *LoginUsecase) LogUserIn(login *model.Login, sessao *model.Sessao) erro
 	// Deletar a sessão já existente no banco se existir.
 	sessaoExistente, err := lu.sessaoRepository.GetSessaoByLogin(dbLogin)
 	if err != nil {
-		return err
-	}
-	err = lu.sessaoRepository.DeleteSessaoByTokens(sessaoExistente)
-	if err != nil {
-		return err
+		if err != sql.ErrNoRows {
+			return err
+		}
 	}
 
+	if sessaoExistente != nil {
+		err = lu.sessaoRepository.DeleteSessaoByTokens(sessaoExistente)
+		if err != nil {
+			return err
+		}
+	}
 	// E aí cadastrar a nova sessão no banco
 	err = lu.sessaoRepository.RegisterSessao(&novaSessao)
 	if err != nil {

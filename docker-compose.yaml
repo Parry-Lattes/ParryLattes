@@ -23,6 +23,7 @@ services:
     volumes:
       - ./resources/ParryLattesDB.sql:/docker-entrypoint-initdb.d/a.sql
       - ./resources/scripts/tipo_de_producao.sql:/docker-entrypoint-initdb.d/b.sql
+      - ./resources/scripts/root.sql:/docker-entrypoint-initdb.d/c.sql
     ports:
       - "3306:3306"
     environment:

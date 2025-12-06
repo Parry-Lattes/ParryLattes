@@ -231,10 +231,17 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Sessao` (
   `idSessao` INT NOT NULL AUTO_INCREMENT,
-  `TokenSessao` VARCHAR(32) NOT NULL,
-  `TokenCsrf` VARCHAR(32) NOT NULL,
+  `idLogin` INT NOT NULL,
+  `TokenSessao` TEXT NOT NULL,
+  `TokenCsrf` TEXT NOT NULL,
   PRIMARY KEY (`idSessao`),
-  UNIQUE KEY `idSessao` (`idSessao`)
+  UNIQUE KEY `idSessao` (`idSessao`),
+  UNIQUE INDEX `idLogin_UNIQUE` (`idLogin` ASC) VISIBLE,
+  CONSTRAINT `fk_idLogin_1`
+    FOREIGN KEY (`idLogin`)
+    REFERENCES `mydb`.`Login` (`idLogin`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;

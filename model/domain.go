@@ -9,7 +9,7 @@ type Pessoa struct {
 	IdPessoa      int64          `json:"-"`
 	Nome          string         `json:"nome"`
 	IdLattes      string         `json:"id_lattes"`
-	Abreviaturas  []*Abreviatura `json:"abreviaturas"`
+	Abreviaturas  []*Abreviatura `json:"abreviaturas,omitempty"`
 	Nacionalidade string         `json:"nacionalidade"`
 }
 
