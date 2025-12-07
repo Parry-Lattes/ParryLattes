@@ -31,6 +31,7 @@ func NewLoginUsecase(
 }
 
 func (lu *LoginUsecase) CheckIfIsLoggedIn(sessao *model.Sessao) (bool, error) {
+	fmt.Println("Verificando se a sessão Existe", sessao)
 	exists, err := lu.sessaoRepository.SessaoExists(sessao)
 	if err != nil {
 		return false, err
@@ -55,6 +56,8 @@ func (lu *LoginUsecase) LogUserIn(
 	// }
 	//
 
+	fmt.Println("Pegando Login", login)
+
 	dbLogin, err := lu.loginRepository.GetLogin(login)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -75,6 +78,7 @@ func (lu *LoginUsecase) LogUserIn(
 		TokenCSRF:   sessao.TokenCSRF,
 	}
 
+	fmt.Println("Pegando Sessao por login:", dbLogin)
 	// Deletar a sessão já existente no banco se existir.
 	sessaoExistente, err := lu.sessaoRepository.GetSessaoByLogin(dbLogin)
 	if err != nil {
@@ -84,11 +88,15 @@ func (lu *LoginUsecase) LogUserIn(
 	}
 
 	if sessaoExistente != nil {
+
+		fmt.Println("Deletando Sessao por tokens", sessaoExistente)
 		err = lu.sessaoRepository.DeleteSessaoByTokens(sessaoExistente)
 		if err != nil {
 			return err
 		}
 	}
+
+	fmt.Println("RegistrarSessao",novaSessao)
 	// E aí cadastrar a nova sessão no banco
 	err = lu.sessaoRepository.RegisterSessao(&novaSessao)
 	if err != nil {

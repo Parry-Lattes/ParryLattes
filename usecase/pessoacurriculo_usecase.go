@@ -24,6 +24,7 @@ func NewPessoaCurriculoUsecase(
 func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 	pessoaCurriculo *model.PessoaCurriculo,
 ) error {
+	fmt.Println("Pegando Pessoa:", pessoaCurriculo.Pessoa)
 	pessoa, err := cu.pessoaUsecase.GetPessoaByIdLattes(
 		pessoaCurriculo.Pessoa.IdLattes,
 	)
@@ -31,6 +32,7 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		return err
 	}
 
+	fmt.Println("Pegando Curriculo da Pessoa:", pessoa)
 	pessoaCurriculo.Curriculo, err = cu.curriculoUsecase.curriculoRepository.CreateCurriculo(
 		pessoaCurriculo.Curriculo,
 		pessoa,
@@ -38,8 +40,10 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 
 	for _, value := range pessoaCurriculo.Curriculo.Producoes {
 
+		fmt.Println("Identificando Tipo da Producao:", value)
 		value.TipoId = cu.curriculoUsecase.identifyTipoProducao(value)
 
+		fmt.Println("Criando Producao:", value)
 		Producao, err := cu.curriculoUsecase.producaoRepository.CreateProducao(
 			value,
 			pessoaCurriculo.Curriculo,
@@ -47,6 +51,13 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 		if err != nil {
 			return err
 		}
+
+		fmt.Println(
+			"Linkando Curriculo",
+			pessoaCurriculo.Curriculo,
+			"à Producao:",
+			value,
+		)
 		err = cu.curriculoUsecase.curriculoRepository.LinkCurriculoProducao(
 			pessoaCurriculo.Curriculo,
 			Producao,
@@ -60,13 +71,15 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 			coautor.Abreviatura.IdPessoa = nil
 			coautor.IdProducao = value.IdProducao
 
-			fmt.Println(coautor.IdProducao)
+			fmt.Println("Registrando Criando Abreviatura:", coautor.Abreviatura)
 			coautor.Abreviatura, err = cu.pessoaUsecase.abreviaturaRepository.CreateAbreviatura(
 				coautor.Abreviatura,
 			)
 			if err != nil {
 				return err
 			}
+
+			fmt.Println("Criando Coautor Para a Abreviatura", coautor)
 			coautor, err = cu.pessoaUsecase.abreviaturaRepository.CreateACoautor(
 				coautor,
 			)
@@ -82,16 +95,19 @@ func (cu *PessoaCurriculoUsecase) CreateCurriculo(
 func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 	idLattes string,
 ) (*model.Curriculo, error) {
+	fmt.Println("Pegando pessoa por id Lattes", idLattes)
 	pessoa, err := cu.pessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("Pegando Curriculo da Pessoa", pessoa)
 	curriculo, err := cu.curriculoUsecase.GetCurriculoById(pessoa.IdPessoa)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("Pegando Producoes do curriculo", curriculo)
 	curriculo.Producoes, err = cu.curriculoUsecase.producaoRepository.GetProducaoByIdLattes(
 		curriculo,
 	)
@@ -100,6 +116,8 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 	}
 
 	for _, value := range curriculo.Producoes {
+
+		fmt.Println("Pegando Coautores por Id Producao", value)
 		value.Coautores, err = cu.curriculoUsecase.abreviaturaRepository.GetCoautoresByIdProducao(
 			value.IdProducao,
 		)
@@ -108,6 +126,8 @@ func (cu *PessoaCurriculoUsecase) GetCurriculoByIdLattes(
 		}
 
 		for _, coautor := range value.Coautores {
+
+			fmt.Println("Pegando Abreviatura Por Coautor:", coautor)
 			coautor.Abreviatura, err = cu.curriculoUsecase.abreviaturaRepository.GetAbreviaturaByCoautor(
 				coautor,
 			)
@@ -125,6 +145,7 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
 	var err error
 
+	fmt.Println("Pegando pessoa por id lattes:", idLattes)
 	pessoaCurriculo.Pessoa, err = cu.pessoaUsecase.GetPessoaByIdLattes(
 		idLattes,
 	)
@@ -132,6 +153,10 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 		return err
 	}
 
+	fmt.Println(
+		"Pegando Curriculo por ID Pessoa",
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
 	pessoaCurriculo.Curriculo, err = cu.curriculoUsecase.GetCurriculoById(
 		pessoaCurriculo.Pessoa.IdPessoa,
 	)
@@ -139,6 +164,10 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 		return err
 	}
 
+	fmt.Println(
+		"Deletando Coautor Por id Producao:",
+		pessoaCurriculo.Curriculo.IdCurriculo,
+	)
 	err = cu.curriculoUsecase.DeleteCoautoresByIdProducao(
 		pessoaCurriculo.Curriculo.IdCurriculo,
 	)
@@ -146,6 +175,10 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 		return err
 	}
 
+	fmt.Println(
+		"Deletando Produao Por Id Curriculo:",
+		pessoaCurriculo.Curriculo.IdCurriculo,
+	)
 	err = cu.curriculoUsecase.DeleteProducaoByIdCurriculo(
 		pessoaCurriculo.Curriculo.IdCurriculo,
 	)
@@ -153,6 +186,10 @@ func (cu *PessoaCurriculoUsecase) DeleteCurriculo(idLattes string) error {
 		return err
 	}
 
+	fmt.Println(
+		"Delete Curriculo Por Id Pessoa",
+		pessoaCurriculo.Pessoa.IdPessoa,
+	)
 	err = cu.curriculoUsecase.DeleteCurriculoByIdPessoa(
 		pessoaCurriculo.Pessoa.IdPessoa,
 	)
@@ -167,11 +204,13 @@ func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes string) error {
 	var pessoaCurriculo *model.PessoaCurriculo = &model.PessoaCurriculo{}
 	var err error
 
+	fmt.Println("Get Pessoa Por Id Lattes:", idLattes)
 	pessoaCurriculo.Pessoa, err = cu.pessoaUsecase.GetPessoaByIdLattes(idLattes)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("Pegando Curriculo Por id:", pessoaCurriculo.Pessoa.IdPessoa)
 	pessoaCurriculo.Curriculo, err = cu.curriculoUsecase.GetCurriculoById(
 		pessoaCurriculo.Pessoa.IdPessoa,
 	)
@@ -179,6 +218,7 @@ func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes string) error {
 	if err != nil {
 		if pessoaCurriculo.Curriculo == nil {
 
+			fmt.Println("Deletando Pessoa", pessoaCurriculo.Pessoa.IdLattes)
 			erro := cu.pessoaUsecase.DeletePessoa(
 				pessoaCurriculo.Pessoa.IdLattes,
 			)
@@ -190,12 +230,15 @@ func (cu *PessoaCurriculoUsecase) DeletePessoa(idLattes string) error {
 			return nil
 		}
 	} else {
+
+		fmt.Println("Deletando Curriculo", pessoaCurriculo.Pessoa.IdLattes)
 		erro := cu.DeleteCurriculo(pessoaCurriculo.Pessoa.IdLattes)
 
 		if erro != nil {
 			return erro
 		}
 
+		fmt.Println("Deletando Pessoa:", pessoaCurriculo.Pessoa.IdLattes)
 		erro = cu.pessoaUsecase.DeletePessoa(pessoaCurriculo.Pessoa.IdLattes)
 		if erro != nil {
 			return erro
