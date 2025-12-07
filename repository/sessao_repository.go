@@ -21,7 +21,6 @@ func NewSessaoRepository(conn *sql.DB) SessaoRepository {
 
 func (sr *SessaoRepository) SessaoExists(sessao *model.Sessao) (bool, error) {
 	query := "SELECT EXISTS(SELECT 1 FROM Sessao WHERE TokenSessao = ? AND TokenCsrf = ? LIMIT 1)"
-	fmt.Println("Sexo")
 	stmt, err := sr.Connection.Prepare(query)
 	if err != nil {
 		return false, err
