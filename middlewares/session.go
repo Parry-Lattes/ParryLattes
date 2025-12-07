@@ -34,10 +34,12 @@ func (auth *AuthMiddleware) CheckIfCSRFTokenExists(next echo.HandlerFunc) echo.H
 
 func (auth *AuthMiddleware) CheckIfSessionIsValid(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		sessionCookie, err := c.Cookie("session_cookie")
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+			response := model.Response{
+				Message: "O cookie de sessão não foi enviado, verifique os headers da requisição.",
+			}
+			return c.JSON(http.StatusBadRequest, response)
 		}
 
 		if sessionCookie == nil {
