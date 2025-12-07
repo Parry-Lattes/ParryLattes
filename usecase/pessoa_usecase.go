@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+
 	"parry_end/model"
 	"parry_end/repository"
 )
@@ -27,6 +29,7 @@ func (pu *PessoaUsecase) GetPessoas() ([]*model.Pessoa, error) {
 	}
 
 	for _, values := range pessoas {
+		fmt.Println("Pegando Abreviaturas:", values)
 		values.Abreviaturas, err = pu.abreviaturaRepository.GetAbreviaturasById(
 			values.IdPessoa,
 		)
@@ -36,6 +39,7 @@ func (pu *PessoaUsecase) GetPessoas() ([]*model.Pessoa, error) {
 }
 
 func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
+	fmt.Println("Criando Pessoa:", pessoa)
 	pessoa, err := pu.pessoaRepository.CreatePessoa(pessoa)
 	if err != nil {
 		return err
@@ -43,6 +47,7 @@ func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
 
 	for _, value := range pessoa.Abreviaturas {
 
+		fmt.Println("Criando Abreviaturas:", value)
 		value.IdPessoa = &pessoa.IdPessoa
 		value, err = pu.abreviaturaRepository.CreateAbreviatura(value)
 		if err != nil {
@@ -56,11 +61,13 @@ func (pu *PessoaUsecase) CreatePessoa(pessoa *model.Pessoa) error {
 func (pu *PessoaUsecase) GetPessoaByIdLattes(
 	idLattes string,
 ) (*model.Pessoa, error) {
+	fmt.Println("Pegando pessoa por idLattes:", idLattes)
 	pessoa, err := pu.pessoaRepository.GetPessoaByIdLattes(idLattes)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("Pegando Abreviaturas por:", pessoa)
 	pessoa.Abreviaturas, err = pu.abreviaturaRepository.GetAbreviaturasById(
 		pessoa.IdPessoa,
 	)
@@ -87,6 +94,7 @@ func (pu *PessoaUsecase) GetPessoaByIdLattes(
 // }
 
 func (pu *PessoaUsecase) DeletePessoa(idLattes string) error {
+	fmt.Println("Deletando Pessoa:", idLattes)
 	err := pu.pessoaRepository.DeletePessoa(idLattes)
 	if err != nil {
 		return err
